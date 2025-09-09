@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "institute": "Indian Institute of Technology Delhi",
+    "type": "Graduation",
+    "duration": 4,
+    "validTill": 2028,
+    "verifiedStatus": true
+  },
+  {
+    "id": 2,
+    "institute": "Birla Institute of Technology and Science, Pilani",
+    "type": "Graduation",
+    "duration": 4,
+    "validTill": 2027,
+    "verifiedStatus": true
+  },
+  {
+    "id": 3,
+    "institute": "National Institute of Technology Trichy",
+    "type": "Graduation",
+    "duration": 4,
+    "validTill": 2026,
+    "verifiedStatus": false
+  },
+  {
+    "id": 4,
+    "institute": "Delhi University",
+    "type": "Graduation",
+    "duration": 3,
+    "validTill": 2025,
+    "verifiedStatus": true
+  },
+  {
+    "id": 5,
+    "institute": "University of Mumbai",
+    "type": "Graduation",
+    "duration": 3,
+    "validTill": 2024,
+    "verifiedStatus": false
+  }
+]

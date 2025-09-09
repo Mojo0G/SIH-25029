@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "institute": "Unique Identification Authority of India",
+    "type": "Identity Check",
+    "duration": 10,
+    "validTill": 2032,
+    "verifiedStatus": true
+  },
+  {
+    "id": 2,
+    "institute": "Passport Seva Kendra, Delhi",
+    "type": "Identity Check",
+    "duration": 10,
+    "validTill": 2031,
+    "verifiedStatus": true
+  },
+  {
+    "id": 3,
+    "institute": "Regional Transport Office, Mumbai",
+    "type": "Identity Check",
+    "duration": 10,
+    "validTill": 2030,
+    "verifiedStatus": false
+  },
+  {
+    "id": 4,
+    "institute": "PAN Card Issuing Authority, India",
+    "type": "Identity Check",
+    "duration": 10,
+    "validTill": 2031,
+    "verifiedStatus": true
+  },
+  {
+    "id": 5,
+    "institute": "Aadhaar Enrollment Center, Bengaluru",
+    "type": "Identity Check",
+    "duration": 10,
+    "validTill": 2032,
+    "verifiedStatus": false
+  }
+]

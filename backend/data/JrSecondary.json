@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "institute": "Kendriya Vidyalaya No. 2, Bhubaneswar",
+    "type": "10Th Marksheet",
+    "duration": 2,
+    "validTill": 2022,
+    "verifiedStatus": true
+  },
+  {
+    "id": 2,
+    "institute": "Delhi Public School, R.K. Puram",
+    "type": "10Th Marksheet",
+    "duration": 2,
+    "validTill": 2023,
+    "verifiedStatus": true
+  },
+  {
+    "id": 3,
+    "institute": "St. Xavier's School, Mumbai",
+    "type": "10Th Marksheet",
+    "duration": 2,
+    "validTill": 2021,
+    "verifiedStatus": false
+  },
+  {
+    "id": 4,
+    "institute": "La Martiniere College, Kolkata",
+    "type": "10Th Marksheet",
+    "duration": 2,
+    "validTill": 2022,
+    "verifiedStatus": true
+  },
+  {
+    "id": 5,
+    "institute": "Mount Carmel School, Delhi",
+    "type": "10Th Marksheet",
+    "duration": 2,
+    "validTill": 2023,
+    "verifiedStatus": false
+  }
+]

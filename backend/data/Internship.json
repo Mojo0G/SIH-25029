@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "institute": "Tata Consultancy Services",
+    "type": "Internship",
+    "duration": 6,
+    "validTill": 2025,
+    "verifiedStatus": true
+  },
+  {
+    "id": 2,
+    "institute": "Infosys Limited",
+    "type": "Internship",
+    "duration": 3,
+    "validTill": 2024,
+    "verifiedStatus": true
+  },
+  {
+    "id": 3,
+    "institute": "Microsoft India",
+    "type": "Internship",
+    "duration": 12,
+    "validTill": 2026,
+    "verifiedStatus": false
+  },
+  {
+    "id": 4,
+    "institute": "Google India",
+    "type": "Internship",
+    "duration": 6,
+    "validTill": 2025,
+    "verifiedStatus": true
+  },
+  {
+    "id": 5,
+    "institute": "Amazon Development Center India",
+    "type": "Internship",
+    "duration": 3,
+    "validTill": 2024,
+    "verifiedStatus": false
+  }
+]
