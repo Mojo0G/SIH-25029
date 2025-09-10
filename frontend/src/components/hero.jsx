@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useRef } from "react";
 
 const Hero = ({
-  badge = "🚀 SIH 2025 Winner Project",
+  badge = "🚀 SIH 2025 Project",
   heading = "Blockchain + AI Certificate Authentication System",
   description = "Revolutionary academic certificate verification using blockchain technology and AI-powered fraud detection. Upload certificates for instant verification, tamper-proof storage, and secure authentication in just 10 days of development.",
   buttons = {
