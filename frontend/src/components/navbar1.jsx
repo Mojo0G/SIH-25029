@@ -74,7 +74,7 @@ const Navbar1 = ({
   return (
     <section className={
       cn(
-        // "sticky top-0 w-full bg-background/80 backdrop-blur-md border-b z-50 supports-[backdrop-filter]:bg-background/60"
+        "sticky top-0 w-full bg-background/80 backdrop-blur-md border-b z-50 supports-[backdrop-filter]:bg-background/60",
         //border at last 
         "border-b-1"
       )
