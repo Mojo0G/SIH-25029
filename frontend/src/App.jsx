@@ -1,14 +1,16 @@
-import React from 'react';
-import {Button} from "./components/ui/button"
+import React from "react";
+import { Button } from "./components/ui/button";
+import { Routes, Route } from "react-router-dom";
+import { MainLayout } from "./layout/layout";
 
 function App() {
   return (
-    <div>
-      <Button variant={"destructive"} size={"lg"}>
-        Hello World
-      </Button>
-    </div>
-  )
+    <Routes>
+      <Route path="/" element={<MainLayout />}>
+      <Route index element={<div>Home Page</div>} />
+      </Route>
+    </Routes>
+  );
 }
 
-export default App
+export default App;
