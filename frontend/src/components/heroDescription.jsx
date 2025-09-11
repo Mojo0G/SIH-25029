@@ -11,7 +11,7 @@ export function HeroDescription() {
       <span className="text-green-600 dark:text-green-400 font-semibold">
         <TypingAnimation text="AI-powered fraud detection" speed={60} delay={2.0} />
       </span>
-      <TypingAnimation text=". Upload certificates for instant verification, tamper-proof storage, and secure authentication in just 10 days of development." speed={150} delay={3.0} />
+      <TypingAnimation text=". Upload certificates for instant verification, tamper-proof storage, and secure authentication." speed={150} delay={3.0} />
     </p>
   );
 }

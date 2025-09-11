@@ -4,9 +4,6 @@ import {
   Upload,
   X,
   File,
-  Image,
-  Video,
-  Music,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useRef } from "react";
 import { TextFade } from "./textFade";
 import {HeroDescription} from "../components/heroDescription"
+import {motion} from "framer-motion"
 
 const Hero = ({
   badge = "🚀 SIH 2025 Project",
@@ -96,7 +94,7 @@ const Hero = ({
   };
 
   return (
-    <section className="py-20 pl-20 pr-20">
+    <section className="h-screen py-20 pl-20 pr-20">
       <div className="container">
         <div className="grid items-center gap-8 lg:grid-cols-2">
           <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
@@ -164,7 +162,11 @@ const Hero = ({
             </div>
           </div>
 
-          <div className="w-full max-w-2xl mx-auto">
+          <motion.div 
+          animate={{opacity:1, x:0}}
+          initial={{opacity:0, x:100}}
+          transition={{duration:1, delay:0.5}}
+          className="w-full max-w-2xl mx-auto pr-10">
             <div
               className={`relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300 min-h-[400px] flex items-center justify-center ${
                 isDragOver
@@ -266,7 +268,7 @@ const Hero = ({
                 )}
               </div>
             )}
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

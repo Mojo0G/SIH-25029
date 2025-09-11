@@ -37,7 +37,7 @@ const Navbar1 = ({
   menu = [
     { title: "Home", url: "#" },
     {
-      title: "Products",
+      title: "Features",
       url: "#",
     },
     {
