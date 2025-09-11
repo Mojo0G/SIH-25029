@@ -41,7 +41,7 @@ const Navbar1 = ({
       url: "#",
     },
     {
-      title: "Contact Us",
+      title: "About Us",
       url: "#",
     },
     // {
@@ -49,7 +49,7 @@ const Navbar1 = ({
     //   url: "#",
     // },
     {
-      title: "About Us",
+      title: "Contact Us",
       url: "#",
     },
   ],

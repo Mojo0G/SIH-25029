@@ -1,6 +1,9 @@
 import React from 'react'
 import { Hero } from '../components/hero'
 import Features01Page from '../components/features'
+import AboutUs from '../components/aboutUs'
+import ContactUs from '../components/contactUs'
+
 
 function Landing() {
   return (
@@ -9,10 +12,14 @@ function Landing() {
     <Hero/>
     {/* features */}
     <Features01Page/>
-    {/* product */}
 
-    {/* contactus */}
+
     {/* aboutus */}
+    <AboutUs/>
+    {/* contactus */}
+    <ContactUs/>
+    
+
    </div>
 
   )

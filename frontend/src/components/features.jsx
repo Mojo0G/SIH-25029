@@ -6,8 +6,7 @@ import {
   Zap,
   Database,
 } from "lucide-react";
-import {motion} from "framer-motion";
-import React from "react";
+import { Badge } from "@/components/ui/badge";
 
 const features = [
   {
@@ -50,13 +49,19 @@ const features = [
 
 const Features01Page = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 bg-gradient-to-br from-green-900 via-emerald-900 to-black dark:from-black dark:via-gray-900 dark:to-green-950">
+    <div className="min-h-screen flex items-center justify-center py-12 border-b-1">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-6 bg-gradient-to-r from-white via-green-400 to-emerald-400 dark:from-gray-100 dark:via-green-300 dark:to-emerald-300 bg-clip-text text-transparent">
-            Powerful Features for <span className="text-green-400 dark:text-green-300">Secure Authentication</span>
+          <Badge
+            variant="outline"
+            className="border-green-500 text-green-600 dark:border-green-400 dark:text-green-400 mb-6"
+          >
+            🚀 Key Features
+          </Badge>
+          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
+            Powerful Features for <span className="text-green-600 dark:text-green-400 drop-shadow-[0_0_10px_rgba(34,197,94,0.8)]">Secure Authentication</span>
           </h2>
-          <p className="text-xl text-gray-300 dark:text-gray-100 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
             Our cutting-edge platform combines blockchain immutability with AI intelligence to provide unparalleled certificate verification
           </p>
         </div>
@@ -65,13 +70,13 @@ const Features01Page = () => {
           {features.map((feature) => (
             <div
               key={feature.title}
-              className="flex flex-col bg-gray-800/60 dark:bg-gray-900/80 backdrop-blur-md border border-green-500/20 dark:border-green-400/30 rounded-xl py-8 px-6 hover:shadow-2xl hover:shadow-green-500/20 hover:border-green-400/50 dark:hover:border-green-300/60 transition-all duration-300 hover:-translate-y-2 hover:bg-gray-700/70 dark:hover:bg-gray-800/90"
+              className="flex flex-col bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl py-8 px-6 hover:shadow-2xl hover:shadow-green-500/15 hover:border-green-400 dark:hover:border-green-500 transition-all duration-300 hover:-translate-y-2 hover:bg-green-50 dark:hover:bg-green-950/20 relative group overflow-hidden"
             >
-              <div className="mb-6 h-14 w-14 flex items-center justify-center bg-gradient-to-br from-green-500 to-emerald-600 dark:from-green-400 dark:to-emerald-500 rounded-xl shadow-xl shadow-green-500/30 dark:shadow-green-400/40">
+              <div className="mb-6 h-14 w-14 flex items-center justify-center bg-gradient-to-br from-green-600 to-green-700 rounded-xl shadow-lg transition-all duration-300 group-hover:scale-105">
                 <feature.icon className="size-7 text-white" />
               </div>
-              <span className="text-xl font-bold mb-3 bg-gradient-to-r from-green-400 to-emerald-400 dark:from-green-300 dark:to-emerald-300 bg-clip-text text-transparent">{feature.title}</span>
-              <p className="text-gray-400 dark:text-gray-200 text-[15px] leading-relaxed">
+              <span className="text-xl font-bold mb-3 text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-all duration-300">{feature.title}</span>
+              <p className="text-gray-600 dark:text-gray-400 text-[15px] leading-relaxed transition-colors duration-300">
                 {feature.description}
               </p>
             </div>

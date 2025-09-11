@@ -94,7 +94,7 @@ const Hero = ({
   };
 
   return (
-    <section className="h-screen py-20 pl-20 pr-20">
+    <section className="h-screen py-20 pl-20 pr-20 border-b-1">
       <div className="container">
         <div className="grid items-center gap-8 lg:grid-cols-2">
           <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
