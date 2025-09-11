@@ -2,7 +2,6 @@ import cv2
 import re
 import pytesseract
 
-img=cv2.imread('tesstrial2.png')
 
 #convert image to grayscale
 def grayscale(image):
@@ -36,9 +35,11 @@ def cleanText(text):
    return " ".join(text.split())
 
 #function to return final extracted text-
-def finaltext (image):
+def finaltext (image_path):
     #loads the pic 
-    img=cv2.imread('tesstrial2.png')
+    img = cv2.imread(image_path)  # Read the uploaded image
+    if img is None:
+        raise ValueError(f"Image not found at {image_path}")
     img=grayscale(img)
     img=threshold(img)
     img=larger(img)
@@ -47,5 +48,3 @@ def finaltext (image):
     text=extractText(img)
     return cleanText(text)
 
-
-print (finaltext(img))
