@@ -1,0 +1,44 @@
+import requests
+from tesstrial import finaltext
+
+
+API_URL = "https://api-inference.huggingface.co/models/dslim/bert-base-NER"
+headers = {"Authorization": "Bearer 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"}  
+
+
+ENTITY_MAP = {
+    "PER": "Student Name",
+    "ORG": "Institution/Company",
+    "DATE": "Year"
+}
+
+def data(payload):
+    response = requests.post(API_URL, headers=headers, json=payload)
+    return response.json()   
+
+
+def basic_fields(image_path):
+    ocr_text = finaltext(image_path)
+    keyword_outputs = data({"inputs": ocr_text})
+
+  
+    if isinstance(keyword_outputs, dict) and keyword_outputs.get("error"):
+        print("Hugging Face API error:", keyword_outputs["error"])
+        return {}
+
+    fields = {}
+    for ent in keyword_outputs: 
+        if not isinstance(ent, dict):
+            continue
+        label = ent.get("entity_group")
+        word = ent.get("word")
+        mapped_label = ENTITY_MAP.get(label)
+        if mapped_label and mapped_label not in fields:
+            fields[mapped_label] = word
+
+    return fields
+
+
+if __name__ == "__main__": 
+    result = basic_fields("your_image.png")
+    
