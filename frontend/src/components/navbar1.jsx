@@ -209,7 +209,7 @@ const Navbar1 = ({
 
         {/* Mobile Menu */}
         <div className="lg:hidden">
-          <div className="flex items-center justify-between h-16 py-2">
+          <div className="flex items-center justify-between h-14 px-4">
             {/* Logo */}
             <a
               href="#home"
@@ -220,7 +220,7 @@ const Navbar1 = ({
               className="flex items-center gap-2 flex-shrink-0"
             >
               <div
-                className="text-2xl font-bold tracking-tight cursor-pointer"
+                className="text-xl sm:text-2xl font-bold tracking-tight cursor-pointer"
               >
                 <span className="text-green-400 dark:text-green-300 drop-shadow-[0_0_15px_rgba(34,197,94,0.8)]">
                   Digi
