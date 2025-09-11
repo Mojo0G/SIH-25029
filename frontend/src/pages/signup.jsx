@@ -1,0 +1,428 @@
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+
+// Skipper UI Background Component with Framer Motion
+const SkipperBackground = () => {
+  const [skippers] = useState(() => {
+    const items = [];
+    for (let i = 0; i < 10; i++) {
+      items.push({
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.random() * 2.5 + 1,
+        duration: Math.random() * 25 + 25,
+        delay: Math.random() * 3,
+        color: `rgba(34, 197, 94, ${Math.random() * 0.15 + 0.04})`
+      });
+    }
+    return items;
+  });
+
+  return (
+    <div className="fixed inset-0 overflow-hidden z-0">
+      {skippers.map((skipper) => (
+        <motion.div
+          key={skipper.id}
+          className="absolute rounded-full"
+          style={{
+            left: `${skipper.x}%`,
+            top: `${skipper.y}%`,
+            width: `${skipper.size}rem`,
+            height: `${skipper.size}rem`,
+            backgroundColor: skipper.color,
+          }}
+          animate={{
+            y: [0, -12, 0],
+            x: [0, 6, 0],
+            scale: [1, 1.03, 1],
+          }}
+          transition={{
+            duration: skipper.duration,
+            repeat: Infinity,
+            delay: skipper.delay,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+// Main Signup Form Component with Framer Motion
+const SignupForm = () => {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    agreeToTerms: false
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.firstName) {
+      newErrors.firstName = 'First name is required';
+    }
+    
+    if (!formData.lastName) {
+      newErrors.lastName = 'Last name is required';
+    }
+    
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+    }
+    
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
+      newErrors.password = 'Password must contain uppercase, lowercase, and number';
+    }
+    
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+    
+    if (!formData.agreeToTerms) {
+      newErrors.agreeToTerms = 'You must agree to the terms and conditions';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (validateForm()) {
+      setIsLoading(true);
+      // Simulate API call
+      setTimeout(() => {
+        setIsLoading(false);
+        alert('Account created successfully!');
+      }, 1500);
+    }
+  };
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        delayChildren: 0.3,
+        staggerChildren: 0.15
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 8, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut"
+      }
+    }
+  };
+
+  return (
+    <>
+      <SkipperBackground />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4 relative z-10">
+        <div className="max-w-md w-full space-y-8">
+          <motion.div
+            initial={{ scale: 0.97, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+          >
+            <Card className="rounded-2xl shadow-xl border border-gray-100 backdrop-blur-sm bg-white/90">
+              <CardHeader className="text-center space-y-1">
+                <motion.div
+                  initial={{ y: -8, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                >
+                  <CardTitle className="text-3xl font-bold text-green-600 dark:text-green-400">
+                    Create Account
+                  </CardTitle>
+                </motion.div>
+                <motion.div
+                  initial={{ y: -4, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.6, delay: 0.4 }}
+                >
+                  <CardDescription className="mt-2 text-gray-600">
+                    Sign up to get started
+                  </CardDescription>
+                </motion.div>
+              </CardHeader>
+              <CardContent>
+                <motion.form 
+                  className="space-y-4" 
+                  onSubmit={handleSubmit}
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  <div className="grid grid-cols-2 gap-4">
+                    <motion.div className="space-y-2" variants={itemVariants}>
+                      <Label htmlFor="firstName" className="text-green-600">
+                        First Name
+                      </Label>
+                      <Input
+                        id="firstName"
+                        name="firstName"
+                        type="text"
+                        required
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        className={errors.firstName ? 'border-red-500' : ''}
+                        placeholder="First name"
+                      />
+                      {errors.firstName && (
+                        <motion.p 
+                          className="text-sm text-red-600 mt-1"
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          transition={{ duration: 0.4 }}
+                        >
+                          {errors.firstName}
+                        </motion.p>
+                      )}
+                    </motion.div>
+
+                    <motion.div className="space-y-2" variants={itemVariants}>
+                      <Label htmlFor="lastName" className="text-green-600">
+                        Last Name
+                      </Label>
+                      <Input
+                        id="lastName"
+                        name="lastName"
+                        type="text"
+                        required
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        className={errors.lastName ? 'border-red-500' : ''}
+                        placeholder="Last name"
+                      />
+                      {errors.lastName && (
+                        <motion.p 
+                          className="text-sm text-red-600 mt-1"
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          transition={{ duration: 0.4 }}
+                        >
+                          {errors.lastName}
+                        </motion.p>
+                      )}
+                    </motion.div>
+                  </div>
+
+                  <motion.div className="space-y-2" variants={itemVariants}>
+                    <Label htmlFor="email" className="text-green-600">
+                      Email address
+                    </Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
+                      className={errors.email ? 'border-red-500' : ''}
+                      placeholder="Enter your email"
+                    />
+                    {errors.email && (
+                      <motion.p 
+                        className="text-sm text-red-600 mt-1"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        transition={{ duration: 0.4 }}
+                      >
+                        {errors.email}
+                      </motion.p>
+                    )}
+                  </motion.div>
+
+                  <motion.div className="space-y-2" variants={itemVariants}>
+                    <Label htmlFor="password" className="text-green-600">
+                      Password
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        name="password"
+                        type={showPassword ? 'text' : 'password'}
+                        autoComplete="new-password"
+                        required
+                        value={formData.password}
+                        onChange={handleChange}
+                        className={errors.password ? 'border-red-500 pr-10' : 'pr-10'}
+                        placeholder="Create a password"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 top-0 h-full px-3 py-2 text-gray-400 hover:text-green-600"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                    {errors.password && (
+                      <motion.p 
+                        className="text-sm text-red-600 mt-1"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        transition={{ duration: 0.4 }}
+                      >
+                        {errors.password}
+                      </motion.p>
+                    )}
+                  </motion.div>
+
+                  <motion.div className="space-y-2" variants={itemVariants}>
+                    <Label htmlFor="confirmPassword" className="text-green-600">
+                      Confirm Password
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        autoComplete="new-password"
+                        required
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        className={errors.confirmPassword ? 'border-red-500 pr-10' : 'pr-10'}
+                        placeholder="Confirm your password"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 top-0 h-full px-3 py-2 text-gray-400 hover:text-green-600"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                    {errors.confirmPassword && (
+                      <motion.p 
+                        className="text-sm text-red-600 mt-1"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        transition={{ duration: 0.4 }}
+                      >
+                        {errors.confirmPassword}
+                      </motion.p>
+                    )}
+                  </motion.div>
+
+                  <motion.div 
+                    className="flex items-start space-x-2 pt-2"
+                    variants={itemVariants}
+                  >
+                    <Checkbox 
+                      id="agreeToTerms" 
+                      name="agreeToTerms"
+                      checked={formData.agreeToTerms}
+                      onCheckedChange={(checked) => {
+                        setFormData(prev => ({...prev, agreeToTerms: checked}));
+                      }}
+                    />
+                    <Label htmlFor="agreeToTerms" className="text-green-700 text-sm font-normal leading-5">
+                      I agree to the <a href="#" className="font-medium text-green-600 hover:text-green-500">Terms and Conditions</a> and <a href="#" className="font-medium text-green-600 hover:text-green-500">Privacy Policy</a>
+                    </Label>
+                  </motion.div>
+                  {errors.agreeToTerms && (
+                    <motion.p 
+                      className="text-sm text-red-600"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      transition={{ duration: 0.4 }}
+                    >
+                      {errors.agreeToTerms}
+                    </motion.p>
+                  )}
+
+                  <motion.div variants={itemVariants} className="pt-2">
+                    <Button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white h-11 transition-all duration-300"
+                      whileHover={{ scale: 1.005 }}
+                      whileTap={{ scale: 0.995 }}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Creating account...
+                        </>
+                      ) : (
+                        'Create Account'
+                      )}
+                    </Button>
+                  </motion.div>
+                </motion.form>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div 
+            className="text-center text-gray-600 text-sm bg-white/60 backdrop-blur-sm px-4 py-3 rounded-full border border-gray-200"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.8 }}
+          >
+            Already have an account?{' '}
+            <a href="#" className="font-medium text-green-600 hover:text-green-500">
+              Sign in
+            </a>
+          </motion.div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default SignupForm;
