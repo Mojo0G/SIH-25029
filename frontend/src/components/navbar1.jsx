@@ -35,14 +35,14 @@ const Navbar1 = ({
   },
 
   menu = [
-    { title: "Home", url: "#" },
+    { title: "Home", url: "#home" },
     {
       title: "Features",
-      url: "#",
+      url: "#features",
     },
     {
       title: "About Us",
-      url: "#",
+      url: "#about",
     },
     // {
     //   title: "Pricing",
@@ -50,7 +50,7 @@ const Navbar1 = ({
     // },
     {
       title: "Contact Us",
-      url: "#",
+      url: "#contact",
     },
   ],
 
@@ -70,6 +70,57 @@ const Navbar1 = ({
     setTheme("dark");
   };
 
+  const scrollToSection = (sectionId) => {
+    console.log(`Scrolling to section: ${sectionId}`);
+    // Add a small delay to ensure DOM is ready
+    setTimeout(() => {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        console.log(`Found element with id ${sectionId}`, element);
+        window.scrollTo({
+          top: element.offsetTop - 80, // Offset for navbar height
+          behavior: 'smooth'
+        });
+      } else {
+        console.error(`Element with id ${sectionId} not found`);
+      }
+    }, 100);
+  };
+
+  // Using Link component with hash navigation doesn't work well with smooth scrolling
+  // Use a regular anchor tag for hash links instead
+  const NavigationLink = ({ url, title, className }) => {
+    if (url.startsWith('#')) {
+      return (
+        <a 
+          href={url}
+          onClick={(e) => {
+            e.preventDefault();
+            handleMenuClick(url);
+          }}
+          className={className}
+        >
+          {title}
+        </a>
+      );
+    }
+    
+    return (
+      <Link to={url} className={className}>
+        {title}
+      </Link>
+    );
+  };
+
+  const handleMenuClick = (url) => {
+    if (url.startsWith('#')) {
+      const sectionId = url.substring(1);
+      scrollToSection(sectionId);
+    } else {
+      navigate(url);
+    }
+  };
+
   return (
     <section
       className={cn(
@@ -83,20 +134,23 @@ const Navbar1 = ({
         <nav className="hidden lg:flex items-center justify-between h-16">
           <div className="flex items-center gap-8">
             {/* Logo */}
-            <Link
-              to={logo.url}
+            <a
+              href="#home"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToSection('home');
+              }}
               className="flex items-center gap-2 flex-shrink-0"
             >
               <div
-                onClick={navigate("/")}
-                className="text-3xl font-extrabold tracking-tight leading-none"
+                className="text-3xl font-extrabold tracking-tight leading-none cursor-pointer"
               >
                 <span className="text-green-500 dark:text-green-500 drop-shadow-[0_0_15px_rgba(34,197,94,0.8)]">
                   Digi
                 </span>
                 <span className="text-gray-800 dark:text-gray-200">Praman</span>
               </div>
-            </Link>
+            </a>
             <div className="flex items-center">
               <NavigationMenu>
                 <NavigationMenuList className="gap-6">
@@ -157,17 +211,23 @@ const Navbar1 = ({
         <div className="lg:hidden">
           <div className="flex items-center justify-between h-16 py-2">
             {/* Logo */}
-            <Link
-              to={logo.url}
+            <a
+              href="#home"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToSection('home');
+              }}
               className="flex items-center gap-2 flex-shrink-0"
             >
-              <div className="text-2xl font-bold tracking-tight">
+              <div
+                className="text-2xl font-bold tracking-tight cursor-pointer"
+              >
                 <span className="text-green-400 dark:text-green-300 drop-shadow-[0_0_15px_rgba(34,197,94,0.8)]">
                   Digi
                 </span>
                 <span className="text-gray-800 dark:text-gray-200">Praman</span>
               </div>
-            </Link>
+            </a>
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
@@ -285,12 +345,30 @@ const renderMenuItem = (item) => {
 
   return (
     <NavigationMenuItem key={item.title}>
-      <NavigationMenuLink
+      <a 
         href={item.url}
-        className="hover:bg-muted/50 hover:text-accent-foreground group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 !text-lg font-medium transition-colors"
+        onClick={(e) => {
+          e.preventDefault();
+          const sectionId = item.url.substring(1);
+          console.log("MenuItem clicked:", sectionId);
+          // Direct call to scrollToSection to avoid scope issues
+          setTimeout(() => {
+            const element = document.getElementById(sectionId);
+            if (element) {
+              console.log(`Found element with id ${sectionId} from menu item`);
+              window.scrollTo({
+                top: element.offsetTop - 80,
+                behavior: 'smooth'
+              });
+            } else {
+              console.error(`Element with id ${sectionId} not found from menu item`);
+            }
+          }, 100);
+        }}
+        className="hover:bg-muted/50 hover:text-accent-foreground group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 !text-lg font-medium transition-colors cursor-pointer"
       >
         {item.title}
-      </NavigationMenuLink>
+      </a>
     </NavigationMenuItem>
   );
 };
@@ -312,13 +390,32 @@ const renderMobileMenuItem = (item) => {
   }
 
   return (
-    <Link
+    <a
       key={item.title}
-      to={item.url}
-      className="text-lg font-semibold hover:bg-muted/50 transition-colors rounded-md px-2 py-2 block"
+      href={item.url}
+      onClick={(e) => {
+        e.preventDefault();
+        const sectionId = item.url.substring(1);
+        console.log("Mobile menu item clicked:", sectionId);
+        
+        // Direct scroll implementation for mobile menu
+        setTimeout(() => {
+          const element = document.getElementById(sectionId);
+          if (element) {
+            console.log(`Found element with id ${sectionId} from mobile menu`);
+            window.scrollTo({
+              top: element.offsetTop - 80,
+              behavior: 'smooth'
+            });
+          } else {
+            console.error(`Element with id ${sectionId} not found from mobile menu`);
+          }
+        }, 100);
+      }}
+      className="text-lg font-semibold hover:bg-muted/50 transition-colors rounded-md px-2 py-2 block cursor-pointer"
     >
       {item.title}
-    </Link>
+    </a>
   );
 };
 
