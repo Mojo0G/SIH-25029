@@ -4,6 +4,7 @@ import { MainLayout } from "./layout/layout";
 import Landing from "./pages/landing";
 import Login from "./pages/login";
 import Signup from "./pages/signup";
+import AdminUsersPage from "./pages/admin";
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Landing />} />
       </Route>
+      <Route path="/admin" element={<AdminUsersPage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
     </Routes>
