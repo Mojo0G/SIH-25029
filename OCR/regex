@@ -1,0 +1,89 @@
+import re
+from tesstrial import finaltext
+from huggingface import basic_fields
+
+
+def roll_no(text):
+   roll = re.search(r"(Roll|Registration|Serial)\s*No[:\-]?\s*([A-Z0-9]+)", text, re.IGNORECASE)
+   if roll:
+    return roll.group(2)   
+    return None
+  
+
+def keywords (image_path, certificate_type="Graduation"):
+   
+     text=finaltext(image_path)
+     fields={}
+
+     basic_keywords = basic_fields(image_path)
+     fields.update(basic_keywords)
+     
+     if certificate_type=="Graduation":
+
+
+      #regex part:
+      course = re.search(r"(Course|Program|Degree)[:\-]?\s*([A-Za-z\s\.]+)", text, re.IGNORECASE)
+     if course:
+        fields["Course"] = course.group(2).strip()
+
+     roll_number = roll_no(text)
+     if roll_number:  # if something was found
+      fields["Registration Number"] = roll_number  
+
+     cgpa = re.search(r"CGPA[:\-]?\s*([0-9]+\.?[0-9]*)", text, re.IGNORECASE)
+     if cgpa:
+            fields["CGPA"] = cgpa.group(1)   
+
+
+
+     elif certificate_type=="Internship":
+
+
+         #regex part:   
+         duration = re.findall(r"(\b\d{1,2}\s*\w+\s*\d{4}\b)", text) 
+         if len(duration) >= 2:
+            fields["Internship Duration"] = f"{duration[0]} – {duration[1]}"   
+
+         role = re.search(r"(Internship|Intern|Trainee|Analyst|Engineer)", text, re.IGNORECASE)
+         if role:
+            fields["Role"] = role.group(0)   
+
+         cert_id = re.search(r"(Certificate\s*ID|Ref(?:erence)?\s*No)\s*[:\-]?\s*([A-Z0-9\-]+)", text, re.IGNORECASE)
+         if cert_id:
+          fields["Certificate ID"] = cert_id.group(2)
+
+
+     elif certificate_type=="12th Marksheet":
+          stream = re.search(r"(Science|Commerce|Arts|Humanities)", text, re.IGNORECASE)
+          if stream:
+            fields["Stream"] = stream.group(1)
+          roll_number = roll_no(text)
+          if roll_number:  
+            fields["Roll Number"] = roll_number  
+
+     elif certificate_type=="10th Marksheet":
+
+          roll_number = roll_no(text)
+          if roll_number:  
+           fields["Roll Number"] = roll_number  
+
+          percentage = re.search(r"([0-9]{2,3}\.?[0-9]?)\s*%", text)
+          if percentage:
+            fields["Percentage"] = percentage.group(1)
+
+       
+     return fields
+
+
+if __name__ == "__main__":
+    image_path = "yourcertificate.png"  
+    result = keywords(image_path, certificate_type="Graduation")  
+
+    print("\n===All Extracted Fields===\n")
+    for k, v in result.items():
+        print(f"{k}: {v}")
+         
+
+
+       
+
