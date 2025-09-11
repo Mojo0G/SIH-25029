@@ -33,3 +33,70 @@ A smart, scalable, and secure Fake Degree/Certificate Recognition system that in
 • Data privacy and access control measures to ensure secure handling of student information
 
 This solution must be adaptable across different institutions, work with both physical and digital certificates, and be affordable for state-wide rollout.
+
+## 🚀 Deployment
+
+### Vercel Deployment (Frontend)
+
+This project is configured for easy deployment on Vercel. The frontend is a React application built with Vite.
+
+#### Prerequisites
+- Vercel account ([vercel.com](https://vercel.com))
+- Node.js 18+ installed locally
+
+#### Quick Deploy
+1. **Install Vercel CLI** (if not already installed):
+   ```bash
+   npm install -g vercel
+   ```
+
+2. **Deploy to Vercel**:
+   ```bash
+   # For production deployment
+   npm run deploy
+
+   # For preview deployment
+   npm run preview-deploy
+   ```
+
+#### Manual Deployment
+1. **Clone and setup**:
+   ```bash
+   git clone <your-repo-url>
+   cd SIH-2025
+   npm run install-deps
+   ```
+
+2. **Build the project**:
+   ```bash
+   npm run build
+   ```
+
+3. **Deploy via Vercel CLI**:
+   ```bash
+   vercel
+   ```
+
+#### Configuration Files
+- `vercel.json` - Vercel deployment configuration
+- `package.json` - Root package scripts for deployment
+- `frontend/vite.config.js` - Vite build configuration
+
+#### Environment Variables
+Add these environment variables in your Vercel dashboard:
+- `NODE_ENV=production`
+
+#### Build Settings
+The deployment automatically:
+- Builds the frontend using Vite
+- Serves static files from the `dist` directory
+- Applies security headers
+- Configures proper routing for SPA
+
+#### Domain Configuration
+After deployment, you can:
+- Connect a custom domain
+- Configure DNS settings
+- Set up SSL certificates (automatic with Vercel)
+
+For more information, visit the [Vercel documentation](https://vercel.com/docs).

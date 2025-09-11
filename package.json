@@ -1,0 +1,30 @@
+{
+  "name": "sih-2025-frontend",
+  "version": "1.0.0",
+  "description": "SIH 2025 - Certificate Verification Platform Frontend",
+  "scripts": {
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "preview": "cd frontend && npm run preview",
+    "deploy": "vercel --prod",
+    "preview-deploy": "vercel",
+    "install-deps": "cd frontend && npm install"
+  },
+  "devDependencies": {
+    "vercel": "^32.5.6"
+  },
+  "keywords": [
+    "certificate-verification",
+    "blockchain",
+    "ai",
+    "education",
+    "sih",
+    "frontend"
+  ],
+  "author": "SIH Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}
