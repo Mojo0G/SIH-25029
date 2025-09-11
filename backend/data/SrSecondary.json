@@ -1,42 +1,52 @@
 [
   {
     "id": 1,
-    "institute": "Kendriya Vidyalaya No. 2, Bhubaneswar",
-    "type": "12Th Marksheet",
-    "duration": 2,
-    "validTill": 2024,
+    "studentName": "Rohit Sharma",
+    "rollNumber": "12TH2022-001",
+    "institutionName": "Delhi Public School",
+    "yearOfPassing": 2022,
+    "percentage": 88.0,
+    "stream": "Science",
     "verifiedStatus": true
   },
   {
     "id": 2,
-    "institute": "Delhi Public School, R.K. Puram",
-    "type": "12Th Marksheet",
-    "duration": 2,
-    "validTill": 2023,
+    "studentName": "Ananya Verma",
+    "rollNumber": "12TH2022-002",
+    "institutionName": "St. Xavier's High School",
+    "yearOfPassing": 2022,
+    "percentage": 95.1,
+    "stream": "Commerce",
     "verifiedStatus": true
   },
   {
     "id": 3,
-    "institute": "St. Xavier's School, Mumbai",
-    "type": "12Th Marksheet",
-    "duration": 2,
-    "validTill": 2022,
+    "studentName": "Karthik Iyer",
+    "rollNumber": "12TH2022-003",
+    "institutionName": "National Public School",
+    "yearOfPassing": 2022,
+    "percentage": 84.7,
+    "stream": "Science",
     "verifiedStatus": false
   },
   {
     "id": 4,
-    "institute": "La Martiniere College, Kolkata",
-    "type": "12Th Marksheet",
-    "duration": 2,
-    "validTill": 2023,
+    "studentName": "Priya Singh",
+    "rollNumber": "12TH2022-004",
+    "institutionName": "Loreto Convent School",
+    "yearOfPassing": 2022,
+    "percentage": 90.5,
+    "stream": "Arts",
     "verifiedStatus": true
   },
   {
     "id": 5,
-    "institute": "Mount Carmel School, Delhi",
-    "type": "12Th Marksheet",
-    "duration": 2,
-    "validTill": 2024,
+    "studentName": "Amit Khanna",
+    "rollNumber": "12TH2022-005",
+    "institutionName": "Don Bosco School",
+    "yearOfPassing": 2022,
+    "percentage": 72.9,
+    "stream": "Commerce",
     "verifiedStatus": false
   }
 ]

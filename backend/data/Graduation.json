@@ -1,42 +1,47 @@
 [
   {
     "id": 1,
-    "institute": "Indian Institute of Technology Delhi",
-    "type": "Graduation",
-    "duration": 4,
-    "validTill": 2028,
+    "studentName": "Rohit Sharma",
+    "rollNumber": "IITD2021001",
+    "institutionName": "Indian Institute of Technology Delhi",
+    "course": "B.Tech Computer Science",
+    "cgpa": 8.7,
     "verifiedStatus": true
   },
   {
     "id": 2,
-    "institute": "Birla Institute of Technology and Science, Pilani",
-    "type": "Graduation",
-    "duration": 4,
-    "validTill": 2027,
+    "studentName": "Ananya Verma",
+    "rollNumber": "BITS2021002",
+    "institutionName": "Birla Institute of Technology and Science, Pilani",
+    "course": "B.E. Electrical Engineering",
+    "cgpa": 8.5,
     "verifiedStatus": true
   },
   {
     "id": 3,
-    "institute": "National Institute of Technology Trichy",
-    "type": "Graduation",
-    "duration": 4,
-    "validTill": 2026,
+    "studentName": "Karthik Iyer",
+    "rollNumber": "NITT2021003",
+    "institutionName": "National Institute of Technology Trichy",
+    "course": "B.Tech Mechanical Engineering",
+    "cgpa": 7.9,
     "verifiedStatus": false
   },
   {
     "id": 4,
-    "institute": "Delhi University",
-    "type": "Graduation",
-    "duration": 3,
-    "validTill": 2025,
+    "studentName": "Priya Singh",
+    "rollNumber": "DU2021004",
+    "institutionName": "Delhi University",
+    "course": "B.Sc Physics",
+    "cgpa": 8.1,
     "verifiedStatus": true
   },
   {
     "id": 5,
-    "institute": "University of Mumbai",
-    "type": "Graduation",
-    "duration": 3,
-    "validTill": 2024,
+    "studentName": "Amit Khanna",
+    "rollNumber": "MU2021005",
+    "institutionName": "University of Mumbai",
+    "course": "B.Com",
+    "cgpa": 7.3,
     "verifiedStatus": false
   }
 ]

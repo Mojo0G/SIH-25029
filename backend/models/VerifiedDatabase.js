@@ -6,7 +6,7 @@ const schema = new mongoose.Schema({
   verified: { type: Boolean, default: false },
   refid: { type: String },
   attachments: { type: mongoose.Schema.Types.Mixed },
-  content: { type: mongoose.Schema.Types.Mixed }
+  content: { type: mongoose.Schema.Types.Mixed },
 });
 
 const VerifiedDb = mongoose.model("VerifiedDatabase", schema);

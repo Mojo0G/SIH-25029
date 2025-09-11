@@ -1,42 +1,47 @@
 [
   {
     "id": 1,
-    "institute": "Unique Identification Authority of India",
-    "type": "Identity Check",
-    "duration": 10,
-    "validTill": 2032,
+    "studentName": "Rohit Sharma",
+    "documentType": "Aadhaar",
+    "documentNumber": "1234-5678-9012",
+    "issuingAuthority": "UIDAI",
+    "validTill": 2030,
     "verifiedStatus": true
   },
   {
     "id": 2,
-    "institute": "Passport Seva Kendra, Delhi",
-    "type": "Identity Check",
-    "duration": 10,
-    "validTill": 2031,
+    "studentName": "Ananya Verma",
+    "documentType": "Passport",
+    "documentNumber": "N1234567",
+    "issuingAuthority": "Government of India",
+    "validTill": 2029,
     "verifiedStatus": true
   },
   {
     "id": 3,
-    "institute": "Regional Transport Office, Mumbai",
-    "type": "Identity Check",
-    "duration": 10,
-    "validTill": 2030,
+    "studentName": "Karthik Iyer",
+    "documentType": "Driving License",
+    "documentNumber": "KA-20-2023-123456",
+    "issuingAuthority": "RTO Karnataka",
+    "validTill": 2028,
     "verifiedStatus": false
   },
   {
     "id": 4,
-    "institute": "PAN Card Issuing Authority, India",
-    "type": "Identity Check",
-    "duration": 10,
-    "validTill": 2031,
+    "studentName": "Priya Singh",
+    "documentType": "Voter ID",
+    "documentNumber": "WB12345678",
+    "issuingAuthority": "Election Commission of India",
+    "validTill": 2035,
     "verifiedStatus": true
   },
   {
     "id": 5,
-    "institute": "Aadhaar Enrollment Center, Bengaluru",
-    "type": "Identity Check",
-    "duration": 10,
-    "validTill": 2032,
+    "studentName": "Amit Khanna",
+    "documentType": "Aadhaar",
+    "documentNumber": "9876-5432-1098",
+    "issuingAuthority": "UIDAI",
+    "validTill": 2027,
     "verifiedStatus": false
   }
 ]

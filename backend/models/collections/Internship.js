@@ -1,14 +1,17 @@
 import mongoose from "mongoose";
+const InternshipSchema = new mongoose.Schema(
+  {
+    id: { type: Number, unique: true, required: true },
+    studentName: { type: String, required: true },
+    companyName: { type: String, required: true },
+    internshipStart: { type: Date, required: true },
+    internshipEnd: { type: Date, required: true },
+    role: { type: String, required: true },
+    certificateId: { type: String, required: true },
+    verifiedStatus: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
 
-const schema = new mongoose.Schema({
-  id: {type: Number},
-  institute: { type: String, required: true },
-  type: { type: String, enum: ["Identity Check","10Th Marksheet", "12Th Marksheet", "Internship","Graduation"] },
-  duration: { type: Number },
-  validTill: { type: Number },
-  verifiedStatus: { type: Boolean}
-});
-
-const Internshipdb = mongoose.model("InternshipDatabase", schema);
-
-export default Internshipdb;
+export default mongoose.models.InternshipDatabase ||
+  mongoose.model("InternshipDatabase", InternshipSchema);

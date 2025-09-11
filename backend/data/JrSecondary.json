@@ -1,42 +1,47 @@
 [
   {
     "id": 1,
-    "institute": "Kendriya Vidyalaya No. 2, Bhubaneswar",
-    "type": "10Th Marksheet",
-    "duration": 2,
-    "validTill": 2022,
+    "studentName": "Rohit Sharma",
+    "rollNumber": "10TH2020-001",
+    "schoolName": "Delhi Public School",
+    "yearOfPassing": 2020,
+    "percentage": 89.5,
     "verifiedStatus": true
   },
   {
     "id": 2,
-    "institute": "Delhi Public School, R.K. Puram",
-    "type": "10Th Marksheet",
-    "duration": 2,
-    "validTill": 2023,
+    "studentName": "Ananya Verma",
+    "rollNumber": "10TH2020-002",
+    "schoolName": "St. Xavier's High School",
+    "yearOfPassing": 2020,
+    "percentage": 93.2,
     "verifiedStatus": true
   },
   {
     "id": 3,
-    "institute": "St. Xavier's School, Mumbai",
-    "type": "10Th Marksheet",
-    "duration": 2,
-    "validTill": 2021,
+    "studentName": "Karthik Iyer",
+    "rollNumber": "10TH2020-003",
+    "schoolName": "National Public School",
+    "yearOfPassing": 2020,
+    "percentage": 85.4,
     "verifiedStatus": false
   },
   {
     "id": 4,
-    "institute": "La Martiniere College, Kolkata",
-    "type": "10Th Marksheet",
-    "duration": 2,
-    "validTill": 2022,
+    "studentName": "Priya Singh",
+    "rollNumber": "10TH2020-004",
+    "schoolName": "Loreto Convent School",
+    "yearOfPassing": 2020,
+    "percentage": 91.0,
     "verifiedStatus": true
   },
   {
     "id": 5,
-    "institute": "Mount Carmel School, Delhi",
-    "type": "10Th Marksheet",
-    "duration": 2,
-    "validTill": 2023,
+    "studentName": "Amit Khanna",
+    "rollNumber": "10TH2020-005",
+    "schoolName": "Don Bosco School",
+    "yearOfPassing": 2020,
+    "percentage": 76.3,
     "verifiedStatus": false
   }
 ]

@@ -1,14 +1,16 @@
 import mongoose from "mongoose";
+const GraduationSchema = new mongoose.Schema(
+  {
+    id: { type: Number, unique: true, required: true },
+    studentName: { type: String, required: true },
+    rollNumber: { type: String, required: true },
+    institutionName: { type: String, required: true },
+    course: { type: String, required: true },
+    cgpa: { type: Number, required: true },
+    verifiedStatus: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
 
-const schema = new mongoose.Schema({
-  id: {type: Number},
-  institute: { type: String, required: true },
-  type: { type: String, enum: ["Identity Check","10Th Marksheet", "12Th Marksheet", "Internship","Graduation"] },
-  duration: { type: Number },
-  validTill: { type: Number },
-  verifiedStatus: { type: Boolean}
-});
-
-const Graduationdb = mongoose.model("GraduationDatabase", schema);
-
-export default Graduationdb;
+export default mongoose.models.GraduationDatabase ||
+  mongoose.model("GraduationDatabase", GraduationSchema);

@@ -1,14 +1,17 @@
 import mongoose from "mongoose";
+const SrSecondarySchema = new mongoose.Schema(
+  {
+    id: { type: Number, unique: true, required: true },
+    studentName: { type: String, required: true },
+    rollNumber: { type: String, required: true },
+    institutionName: { type: String, required: true },
+    yearOfPassing: { type: Number, required: true },
+    percentage: { type: Number, required: true },
+    stream: { type: String, required: true },
+    verifiedStatus: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
 
-const schema = new mongoose.Schema({
-  id: {type: Number},
-  institute: { type: String, required: true },
-  type: { type: String, enum: ["Identity Check","10Th Marksheet", "12Th Marksheet", "Internship","Graduation"] },
-  duration: { type: Number },
-  validTill: { type: Number },
-  verifiedStatus: { type: Boolean}
-});
-
-const SrSecondarydb = mongoose.model("SrSecondaryDatabase", schema);
-
-export default SrSecondarydb;
+export default mongoose.models.SrSecondaryDatabase ||
+  mongoose.model("SrSecondaryDatabase", SrSecondarySchema);
