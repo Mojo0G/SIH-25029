@@ -6,20 +6,21 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useTheme } from '../components/theme-provider';
 
-// Skipper UI Background Component with Framer Motion
+// Skipper UI Background Component with Framer Motion 
 const SkipperBackground = () => {
   const [skippers] = useState(() => {
     const items = [];
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 12; i++) {
       items.push({
         id: i,
         x: Math.random() * 100,
         y: Math.random() * 100,
-        size: Math.random() * 2.5 + 1,
-        duration: Math.random() * 25 + 25,
-        delay: Math.random() * 3,
-        color: `rgba(34, 197, 94, ${Math.random() * 0.15 + 0.04})`
+        size: Math.random() * 3 + 1,
+        duration: Math.random() * 20 + 20,
+        delay: Math.random() * 2,
+        color: `rgba(34, 197, 94, ${Math.random() * 0.2 + 0.05})`
       });
     }
     return items;
@@ -39,9 +40,9 @@ const SkipperBackground = () => {
             backgroundColor: skipper.color,
           }}
           animate={{
-            y: [0, -12, 0],
-            x: [0, 6, 0],
-            scale: [1, 1.03, 1],
+            y: [0, -15, 0],
+            x: [0, 8, 0],
+            scale: [1, 1.05, 1],
           }}
           transition={{
             duration: skipper.duration,
@@ -69,6 +70,7 @@ const SignupForm = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const { theme } = useTheme(); // Get the current theme
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -130,25 +132,34 @@ const SignupForm = () => {
     }
   };
 
+  // Determine card classes based on theme
+  const cardClass = theme === 'light' 
+    ? "rounded-2xl shadow-xl border border-gray-200 backdrop-blur-sm bg-white/90 text-gray-900" 
+    : "rounded-2xl shadow-xl border border-gray-800 backdrop-blur-sm bg-gray-800/90 text-white";
+
+  const footerClass = theme === 'light'
+    ? "text-center text-gray-600 text-sm bg-white/60 backdrop-blur-sm px-4 py-3 rounded-full border border-gray-200"
+    : "text-center text-gray-300 text-sm bg-gray-800/60 backdrop-blur-sm px-4 py-3 rounded-full border border-gray-700";
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        delayChildren: 0.3,
-        staggerChildren: 0.15
+        delayChildren: 0.2,
+        staggerChildren: 0.1
       }
     }
   };
 
   const itemVariants = {
-    hidden: { y: 8, opacity: 0 },
+    hidden: { y: 10, opacity: 0 },
     visible: {
       y: 0,
       opacity: 1,
       transition: {
-        duration: 0.6,
+        duration: 0.4,
         ease: "easeOut"
       }
     }
@@ -157,30 +168,30 @@ const SignupForm = () => {
   return (
     <>
       <SkipperBackground />
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4 relative z-10">
+      <div className={`min-h-screen bg-gradient-to-br from-gray-900 via-green-900 to-gray-900 text-white relative overflow-hidden flex items-center justify-center p-4 relative z-10`}>
         <div className="max-w-md w-full space-y-8">
           <motion.div
-            initial={{ scale: 0.97, opacity: 0 }}
+            initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.7, ease: "easeOut" }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
           >
-            <Card className="rounded-2xl shadow-xl border border-gray-100 backdrop-blur-sm bg-white/90">
+            <Card className={cardClass}>
               <CardHeader className="text-center space-y-1">
                 <motion.div
-                  initial={{ y: -8, opacity: 0 }}
+                  initial={{ y: -10, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
+                  transition={{ duration: 0.4, delay: 0.1 }}
                 >
-                  <CardTitle className="text-3xl font-bold text-green-600 dark:text-green-400">
+                  <CardTitle className="text-3xl font-bold text-green-600">
                     Create Account
                   </CardTitle>
                 </motion.div>
                 <motion.div
-                  initial={{ y: -4, opacity: 0 }}
+                  initial={{ y: -5, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.6, delay: 0.4 }}
+                  transition={{ duration: 0.4, delay: 0.2 }}
                 >
-                  <CardDescription className="mt-2 text-gray-600">
+                  <CardDescription className={`mt-2 ${theme === 'light' ? 'text-gray-600' : 'text-gray-300'}`}>
                     Sign up to get started
                   </CardDescription>
                 </motion.div>
@@ -205,15 +216,18 @@ const SignupForm = () => {
                         required
                         value={formData.firstName}
                         onChange={handleChange}
-                        className={errors.firstName ? 'border-red-500' : ''}
+                        className={theme === 'light' 
+                          ? `bg-white border-gray-300 text-gray-900 ${errors.firstName ? 'border-red-500' : ''}`
+                          : `bg-gray-700 border-gray-600 text-white ${errors.firstName ? 'border-red-500' : ''}`
+                        }
                         placeholder="First name"
                       />
                       {errors.firstName && (
                         <motion.p 
-                          className="text-sm text-red-600 mt-1"
+                          className="text-sm text-red-500 mt-1"
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
-                          transition={{ duration: 0.4 }}
+                          transition={{ duration: 0.2 }}
                         >
                           {errors.firstName}
                         </motion.p>
@@ -231,15 +245,18 @@ const SignupForm = () => {
                         required
                         value={formData.lastName}
                         onChange={handleChange}
-                        className={errors.lastName ? 'border-red-500' : ''}
+                        className={theme === 'light' 
+                          ? `bg-white border-gray-300 text-gray-900 ${errors.lastName ? 'border-red-500' : ''}`
+                          : `bg-gray-700 border-gray-600 text-white ${errors.lastName ? 'border-red-500' : ''}`
+                        }
                         placeholder="Last name"
                       />
                       {errors.lastName && (
                         <motion.p 
-                          className="text-sm text-red-600 mt-1"
+                          className="text-sm text-red-500 mt-1"
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
-                          transition={{ duration: 0.4 }}
+                          transition={{ duration: 0.2 }}
                         >
                           {errors.lastName}
                         </motion.p>
@@ -259,15 +276,18 @@ const SignupForm = () => {
                       required
                       value={formData.email}
                       onChange={handleChange}
-                      className={errors.email ? 'border-red-500' : ''}
+                      className={theme === 'light' 
+                        ? `bg-white border-gray-300 text-gray-900 ${errors.email ? 'border-red-500' : ''}`
+                        : `bg-gray-700 border-gray-600 text-white ${errors.email ? 'border-red-500' : ''}`
+                      }
                       placeholder="Enter your email"
                     />
                     {errors.email && (
                       <motion.p 
-                        className="text-sm text-red-600 mt-1"
+                        className="text-sm text-red-500 mt-1"
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
-                        transition={{ duration: 0.4 }}
+                        transition={{ duration: 0.2 }}
                       >
                         {errors.email}
                       </motion.p>
@@ -287,14 +307,17 @@ const SignupForm = () => {
                         required
                         value={formData.password}
                         onChange={handleChange}
-                        className={errors.password ? 'border-red-500 pr-10' : 'pr-10'}
+                        className={theme === 'light'
+                          ? `bg-white border-gray-300 text-gray-900 ${errors.password ? 'border-red-500 pr-10' : 'pr-10'}`
+                          : `bg-gray-700 border-gray-600 text-white ${errors.password ? 'border-red-500 pr-10' : 'pr-10'}`
+                        }
                         placeholder="Create a password"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="absolute right-0 top-0 h-full px-3 py-2 text-gray-400 hover:text-green-600"
+                        className={`absolute right-0 top-0 h-full px-3 py-2 ${theme === 'light' ? 'text-gray-500 hover:text-green-600' : 'text-gray-400 hover:text-green-400'} bg-transparent`}
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
@@ -306,10 +329,10 @@ const SignupForm = () => {
                     </div>
                     {errors.password && (
                       <motion.p 
-                        className="text-sm text-red-600 mt-1"
+                        className="text-sm text-red-500 mt-1"
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
-                        transition={{ duration: 0.4 }}
+                        transition={{ duration: 0.2 }}
                       >
                         {errors.password}
                       </motion.p>
@@ -329,14 +352,17 @@ const SignupForm = () => {
                         required
                         value={formData.confirmPassword}
                         onChange={handleChange}
-                        className={errors.confirmPassword ? 'border-red-500 pr-10' : 'pr-10'}
+                        className={theme === 'light'
+                          ? `bg-white border-gray-300 text-gray-900 ${errors.confirmPassword ? 'border-red-500 pr-10' : 'pr-10'}`
+                          : `bg-gray-700 border-gray-600 text-white ${errors.confirmPassword ? 'border-red-500 pr-10' : 'pr-10'}`
+                        }
                         placeholder="Confirm your password"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="absolute right-0 top-0 h-full px-3 py-2 text-gray-400 hover:text-green-600"
+                        className={`absolute right-0 top-0 h-full px-3 py-2 ${theme === 'light' ? 'text-gray-500 hover:text-green-600' : 'text-gray-400 hover:text-green-400'} bg-transparent`}
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       >
                         {showConfirmPassword ? (
@@ -348,10 +374,10 @@ const SignupForm = () => {
                     </div>
                     {errors.confirmPassword && (
                       <motion.p 
-                        className="text-sm text-red-600 mt-1"
+                        className="text-sm text-red-500 mt-1"
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
-                        transition={{ duration: 0.4 }}
+                        transition={{ duration: 0.2 }}
                       >
                         {errors.confirmPassword}
                       </motion.p>
@@ -369,17 +395,21 @@ const SignupForm = () => {
                       onCheckedChange={(checked) => {
                         setFormData(prev => ({...prev, agreeToTerms: checked}));
                       }}
+                      className={theme === 'light' 
+                        ? "border-gray-400 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600" 
+                        : "border-gray-600 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
+                      } 
                     />
-                    <Label htmlFor="agreeToTerms" className="text-green-700 text-sm font-normal leading-5">
-                      I agree to the <a href="#" className="font-medium text-green-600 hover:text-green-500">Terms and Conditions</a> and <a href="#" className="font-medium text-green-600 hover:text-green-500">Privacy Policy</a>
+                    <Label htmlFor="agreeToTerms" className={`text-sm font-normal ${theme === 'light' ? 'text-gray-700' : 'text-green-300'}`}>
+                      I agree to the <a href="#" className="font-medium text-green-600 hover:text-green-700">Terms and Conditions</a> and <a href="#" className="font-medium text-green-600 hover:text-green-700">Privacy Policy</a>
                     </Label>
                   </motion.div>
                   {errors.agreeToTerms && (
                     <motion.p 
-                      className="text-sm text-red-600"
+                      className="text-sm text-red-500"
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
-                      transition={{ duration: 0.4 }}
+                      transition={{ duration: 0.2 }}
                     >
                       {errors.agreeToTerms}
                     </motion.p>
@@ -389,9 +419,9 @@ const SignupForm = () => {
                     <Button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full bg-green-600 hover:bg-green-700 text-white h-11 transition-all duration-300"
-                      whileHover={{ scale: 1.005 }}
-                      whileTap={{ scale: 0.995 }}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white h-11"
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
                     >
                       {isLoading ? (
                         <>
@@ -409,13 +439,13 @@ const SignupForm = () => {
           </motion.div>
 
           <motion.div 
-            className="text-center text-gray-600 text-sm bg-white/60 backdrop-blur-sm px-4 py-3 rounded-full border border-gray-200"
-            initial={{ opacity: 0, y: 8 }}
+            className={footerClass}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.8 }}
+            transition={{ duration: 0.4, delay: 0.6 }}
           >
             Already have an account?{' '}
-            <a href="#" className="font-medium text-green-600 hover:text-green-500">
+            <a href="#" className="font-medium text-green-600 hover:text-green-700">
               Sign in
             </a>
           </motion.div>
