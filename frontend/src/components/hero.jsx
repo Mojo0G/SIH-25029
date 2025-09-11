@@ -96,7 +96,7 @@ const Hero = ({
     <section className="min-h-screen py-8 px-4 sm:py-16 sm:px-6 lg:px-20 border-b-1">
       <div className="container mx-auto max-w-7xl">
         <div className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-8">
-          {/* Content Section - Always on top for mobile */}
+          {/* Content Section  */}
           <div className="flex flex-col items-center text-center lg:items-start lg:text-left w-full order-1">
             {badge && (
               <Badge
@@ -152,7 +152,7 @@ const Hero = ({
             </div>
           </div>
 
-          {/* Upload Section - Always below content on mobile */}
+          {/* Upload Section */}
           <motion.div 
             animate={{opacity:1, y:0}}
             initial={{opacity:0, y:50}}

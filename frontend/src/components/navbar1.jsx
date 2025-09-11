@@ -62,7 +62,7 @@ const Navbar1 = ({
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const isdark = theme === "dark";
-  const toggleTheme = () => {
+  const toggleTheme = () =>{
     if (isdark) {
       setTheme("light");
       return;
@@ -228,46 +228,57 @@ const Navbar1 = ({
                 <span className="text-gray-800 dark:text-gray-200">Praman</span>
               </div>
             </a>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              {/* Theme Toggle Button - Moved outside the hamburger menu */}
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={toggleTheme}
                 className={cn(
-                  "h-10 w-10 relative overflow-hidden",
+                  "h-9 w-9 relative overflow-hidden cursor-pointer",
                   "transition-all duration-300 ease-in-out hover:bg-accent"
                 )}
               >
                 <div className="relative flex items-center justify-center">
                   <Sun
                     className={cn(
-                      "h-6 w-6 absolute text-yellow-500 transition-all duration-500 ease-in-out",
-                      isdark
-                        ? "rotate-90 scale-0 opacity-0"
-                        : "rotate-0 scale-100 opacity-100"
-                    )}
-                  />
-                  <Moon
-                    className={cn(
-                      "h-6 w-6 absolute text-blue-500 transition-all duration-500 ease-in-out",
+                      "h-5 w-5 absolute text-yellow-500 transition-all duration-500 ease-in-out",
                       isdark
                         ? "rotate-0 scale-100 opacity-100"
                         : "-rotate-90 scale-0 opacity-0"
                     )}
                   />
+
+                  <Moon
+                    className={cn(
+                      "h-5 w-5 absolute text-blue-500 transition-all duration-500 ease-in-out",
+                      isdark
+                        ? "rotate-360 scale-0 opacity-0"
+                        : "rotate-0 scale-100 opacity-100"
+                    )}
+                  />
                 </div>
                 <span className="sr-only">Toggle theme</span>
               </Button>
+              
+              {/* Smaller Hamburger Menu */}
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="outline" size="icon" className="h-10 w-10">
-                    <Menu className="h-6 w-6" />
+                  <Button variant="outline" size="icon" className="h-9 w-9">
+                    <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent className="overflow-y-auto">
-                  <SheetHeader>
+                <SheetContent className="overflow-y-auto w-64">
+                  <SheetHeader className="pb-4">
                     <SheetTitle>
-                      <Link to={logo.url} className="flex items-center gap-2">
+                      <a
+                        href="#home"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          scrollToSection('home');
+                        }}
+                        className="flex items-center gap-2"
+                      >
                         <span className="text-lg font-bold">
                           <span className="text-green-400 dark:text-green-300 drop-shadow-[0_0_15px_rgba(34,197,94,0.8)]">
                             Digi
@@ -276,41 +287,53 @@ const Navbar1 = ({
                             Praman
                           </span>
                         </span>
-                      </Link>
+                      </a>
                     </SheetTitle>
                   </SheetHeader>
-                  <div className="flex flex-col gap-6 p-4">
-                    <Accordion
-                      type="single"
-                      collapsible
-                      className="flex w-full flex-col gap-4"
-                    >
-                      {menu.map((item) => renderMobileMenuItem(item))}
-                    </Accordion>
-
-                    <div className="flex flex-col gap-3">
-                      <Button
-                        variant="outline"
-                        onClick={toggleTheme}
-                        className="w-full justify-start text-lg"
+                  <div className="flex flex-col gap-4">
+                    {menu.map((item) => (
+                      <a
+                        key={item.title}
+                        href={item.url}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          const sectionId = item.url.substring(1);
+                          console.log("Mobile menu item clicked:", sectionId);
+                          
+                          // Direct scroll implementation for mobile menu
+                          setTimeout(() => {
+                            const element = document.getElementById(sectionId);
+                            if (element) {
+                              console.log(`Found element with id ${sectionId} from mobile menu`);
+                              window.scrollTo({
+                                top: element.offsetTop - 80,
+                                behavior: 'smooth'
+                              });
+                            } else {
+                              console.error(`Element with id ${sectionId} not found from mobile menu`);
+                            }
+                          }, 100);
+                        }}
+                        className="text-base font-medium hover:bg-muted/50 transition-colors rounded-md px-3 py-2 block cursor-pointer"
                       >
-                        {theme === "light" ? (
-                          <Moon className="h-4 w-4 mr-2" />
-                        ) : theme === "dark" ? (
-                          <Sun className="h-4 w-4 mr-2" />
-                        ) : (
-                          <Sun className="h-4 w-4 mr-2" />
-                        )}
-                        Toggle theme
-                      </Button>
+                        {item.title}
+                      </a>
+                    ))}
+
+                    <div className="flex flex-col gap-3 pt-4 border-t">
                       <Button
                         asChild
                         variant="outline"
-                        className="border-green-600 text-green-600 hover:bg-green-600 hover:text-white dark:border-green-400 dark:text-green-400 dark:hover:bg-green-400 dark:hover:text-white transition-colors"
+                        size="default"
+                        className="w-46 mx-auto border-green-600 text-green-600 hover:bg-green-600 hover:text-white dark:border-green-400 dark:text-green-400 dark:hover:bg-green-400 dark:hover:text-white transition-colors"
                       >
                         <Link to={auth.login.url}>{auth.login.title}</Link>
                       </Button>
-                      <Button asChild>
+                      <Button 
+                        asChild 
+                        size="default"
+                        className="w-46 mx-auto"
+                      >
                         <Link to={auth.signup.url}>{auth.signup.title}</Link>
                       </Button>
                     </div>
@@ -370,52 +393,6 @@ const renderMenuItem = (item) => {
         {item.title}
       </a>
     </NavigationMenuItem>
-  );
-};
-
-const renderMobileMenuItem = (item) => {
-  if (item.items) {
-    return (
-      <AccordionItem key={item.title} value={item.title} className="border-b-0">
-        <AccordionTrigger className="text-lg py-0 font-semibold hover:no-underline hover:bg-muted/50 transition-colors rounded-md px-2">
-          {item.title}
-        </AccordionTrigger>
-        <AccordionContent className="mt-2">
-          {item.items.map((subItem) => (
-            <SubMenuLink key={subItem.title} item={subItem} />
-          ))}
-        </AccordionContent>
-      </AccordionItem>
-    );
-  }
-
-  return (
-    <a
-      key={item.title}
-      href={item.url}
-      onClick={(e) => {
-        e.preventDefault();
-        const sectionId = item.url.substring(1);
-        console.log("Mobile menu item clicked:", sectionId);
-        
-        // Direct scroll implementation for mobile menu
-        setTimeout(() => {
-          const element = document.getElementById(sectionId);
-          if (element) {
-            console.log(`Found element with id ${sectionId} from mobile menu`);
-            window.scrollTo({
-              top: element.offsetTop - 80,
-              behavior: 'smooth'
-            });
-          } else {
-            console.error(`Element with id ${sectionId} not found from mobile menu`);
-          }
-        }, 100);
-      }}
-      className="text-lg font-semibold hover:bg-muted/50 transition-colors rounded-md px-2 py-2 block cursor-pointer"
-    >
-      {item.title}
-    </a>
   );
 };
 
