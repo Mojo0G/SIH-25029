@@ -133,7 +133,7 @@ const LoginForm = () => {
   return (
     <>
       <SkipperBackground />
-      <div className={`min-h-screen bg-gradient-to-br from-gray-900 via-green-900 to-gray-900 text-white relative overflow-hidden flex items-center justify-center p-4 relative z-10`}>
+      <div className={`min-h-screen bg-gradient-to-br from-gray-900 via-green-900 to-gray-900 text-white relative overflow-hidden flex items-center justify-center p-4 z-10`}>
         <div className="max-w-md w-full space-y-8">
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}

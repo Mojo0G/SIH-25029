@@ -160,12 +160,12 @@ const Navbar1 = ({
             </div>
           </div>
           <div className="flex items-center gap-3 cursor-pointer"
-          onClick={toggleTheme}
 
-          >
+>
             <Button
               variant="ghost"
               size="icon"
+              onClick={toggleTheme}
               
               className={cn(
                 "h-12 w-12 relative overflow-hidden cursor-pointer",
