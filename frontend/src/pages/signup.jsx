@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -71,6 +72,7 @@ const SignupForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const { theme } = useTheme(); // Get the current theme
+  const navigate = useNavigate(); // Initialize navigate function
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -127,7 +129,8 @@ const SignupForm = () => {
       // Simulate API call
       setTimeout(() => {
         setIsLoading(false);
-        alert('Account created successfully!');
+        // Redirect to login page after successful signup
+        navigate('/login');
       }, 1500);
     }
   };
@@ -401,7 +404,7 @@ const SignupForm = () => {
                       } 
                     />
                     <Label htmlFor="agreeToTerms" className={`text-sm font-normal ${theme === 'light' ? 'text-gray-700' : 'text-green-300'}`}>
-                      I agree to the <a href="#" className="font-medium text-green-600 hover:text-green-700">Terms and Conditions</a> and <a href="#" className="font-medium text-green-600 hover:text-green-700">Privacy Policy</a>
+                      I agree to the <Link to="/terms" className="font-medium text-green-600 hover:text-green-700">Terms and Conditions</Link> and <Link to="/privacy" className="font-medium text-green-600 hover:text-green-700">Privacy Policy</Link>
                     </Label>
                   </motion.div>
                   {errors.agreeToTerms && (
@@ -445,9 +448,9 @@ const SignupForm = () => {
             transition={{ duration: 0.4, delay: 0.6 }}
           >
             Already have an account?{' '}
-            <a href="#" className="font-medium text-green-600 hover:text-green-700">
+            <Link to="/login" className="font-medium text-green-600 hover:text-green-700">
               Sign in
-            </a>
+            </Link>
           </motion.div>
         </div>
       </div>

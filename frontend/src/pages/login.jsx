@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -64,6 +65,7 @@ const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const { theme } = useTheme(); // Get the current theme
+  const navigate = useNavigate(); // Initialize navigate function
 
   const validateForm = () => {
     const newErrors = {};
@@ -92,7 +94,8 @@ const LoginForm = () => {
       // Simulate API call
       setTimeout(() => {
         setIsLoading(false);
-        alert('Login successful!');
+        // Redirect to admin page after successful login
+        navigate('/admin');
       }, 1500);
     }
   };
@@ -264,9 +267,9 @@ const LoginForm = () => {
                     </div>
 
                     <div className="text-sm">
-                      <a href="#" className="font-medium text-green-600 hover:text-green-700">
+                      <Link to="/forgot-password" className="font-medium text-green-600 hover:text-green-700">
                         Forgot your password?
-                      </a>
+                      </Link>
                     </div>
                   </motion.div>
 
@@ -300,9 +303,9 @@ const LoginForm = () => {
             transition={{ duration: 0.4, delay: 0.6 }}
           >
             Don't have an account?{' '}
-            <a href="#" className="font-medium text-green-600 hover:text-green-700">
+            <Link to="/signup" className="font-medium text-green-600 hover:text-green-700">
               Sign up
-            </a>
+            </Link>
           </motion.div>
         </div>
       </div>
