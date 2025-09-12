@@ -3,10 +3,9 @@ import { Button } from '../components/ui/button'
 import { Badge } from '../components/ui/badge'
 import UploadZone from '@/components/uploadZone'
 import { Mail, Shield, User as UserIcon, Flag, Upload } from 'lucide-react'
-import { useSelector } from 'react-redux'
 
 function AdminDashboardPage() {
-  const files = useSelector((state) => state.file.files)
+  const [uploadedFiles, setUploadedFiles] = useState([])
 
   const [user] = useState({
     name: 'Admin User',
@@ -77,7 +76,7 @@ function AdminDashboardPage() {
             </h2>
           </div>
           <div className="bg-muted/30 rounded-lg p-4">
-            <UploadZone />
+            <UploadZone onFilesChange={setUploadedFiles} />
           </div>
         </section>
 
@@ -94,7 +93,7 @@ function AdminDashboardPage() {
             </div>
           </div>
           <div className="space-y-4">
-            {(files.length ? [] : flags).filter(f => f.status === 'invalid').map((f, idx) => (
+            {(uploadedFiles.length ? [] : flags).filter(f => f.status === 'invalid').map((f, idx) => (
               <div key={f.id ?? idx} className="rounded-lg border border-red-300 dark:border-red-500/40 p-4 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors">
                 <div className="flex items-center gap-4">
                   {f.imageUrl ? (
@@ -115,7 +114,7 @@ function AdminDashboardPage() {
                 </div>
               </div>
             ))}
-            {files.length === 0 && flags.filter(f=>f.status==='invalid').length === 0 && (
+            {uploadedFiles.length === 0 && flags.filter(f=>f.status==='invalid').length === 0 && (
               <div className="text-center py-12">
                 <Flag className="size-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-foreground text-lg">No flagged certificates</p>
@@ -129,6 +128,6 @@ function AdminDashboardPage() {
   )
 }
 
-export default AdminDashboardPage;
+export default AdminDashboardPage
 
 

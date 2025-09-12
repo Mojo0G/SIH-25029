@@ -17,7 +17,7 @@ const teamMembers = [
   {
     name: "Sarah Chen",
     role: "Blockchain Developer",
-    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face",
     description: "Expert in smart contracts and distributed systems with 5+ years experience.",
   },
   {

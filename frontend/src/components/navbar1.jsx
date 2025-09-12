@@ -55,8 +55,8 @@ const Navbar1 = ({
   ],
 
   auth = {
-    login: { title: "Login", url: "/login" }, // Changed to route path
-    signup: { title: "Sign up", url: "/signup" }, // Changed to route path
+    login: { title: "Login", url: "#" },
+    signup: { title: "Sign up", url: "#" },
   },
 }) => {
   const { theme, setTheme } = useTheme();

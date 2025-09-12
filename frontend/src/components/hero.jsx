@@ -11,8 +11,6 @@ import { useState, useRef } from "react";
 import { TextFade } from "./textFade";
 import { HeroDescription } from "../components/heroDescription";
 import { motion } from "framer-motion";
-import { useSelector, useDispatch } from 'react-redux';
-import { addFile, removeFile } from '../store/slices/fileSlice';
 
 const Hero = ({
   badge = "🚀 SIH 2025 Project",
@@ -33,8 +31,7 @@ const Hero = ({
     alt: "Hero section demo image showing interface components",
   },
 }) => {
-  const dispatch = useDispatch();
-  const files = useSelector((state) => state.file.files);
+  const [files, setFiles] = useState([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -53,34 +50,34 @@ const Hero = ({
     setIsDragOver(false);
 
     const droppedFiles = Array.from(e.dataTransfer.files);
-    const imageFiles = droppedFiles.filter(
+    const zipFiles = droppedFiles.filter(
       (file) =>
-        file.type.startsWith("image/") ||
-        file.name.toLowerCase().match(/\.(jpg|jpeg|png|gif|bmp|webp|svg)$/)
+        file.type === "application/zip" ||
+        file.type === "application/x-zip-compressed" ||
+        file.name.toLowerCase().endsWith(".zip")
     );
 
-    if (imageFiles.length > 0) {
-      // Only allow one image - replace existing if any
-      dispatch(addFile(imageFiles[0]));
+    if (zipFiles.length > 0) {
+      setFiles((prev) => [...prev, ...zipFiles]);
     }
   };
 
   const handleFileSelect = (e) => {
     const selectedFiles = Array.from(e.target.files);
-    const imageFiles = selectedFiles.filter(
+    const zipFiles = selectedFiles.filter(
       (file) =>
-        file.type.startsWith("image/") ||
-        file.name.toLowerCase().match(/\.(jpg|jpeg|png|gif|bmp|webp|svg)$/)
+        file.type === "application/zip" ||
+        file.type === "application/x-zip-compressed" ||
+        file.name.toLowerCase().endsWith(".zip")
     );
 
-    if (imageFiles.length > 0) {
-      // Only allow one image - replace existing if any
-      dispatch(addFile(imageFiles[0]));
+    if (zipFiles.length > 0) {
+      setFiles((prev) => [...prev, ...zipFiles]);
     }
   };
 
-  const handleRemoveFile = (index) => {
-    dispatch(removeFile(index));
+  const removeFile = (index) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const getFileIcon = (fileType) => {
@@ -176,7 +173,8 @@ const Hero = ({
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileSelect}
-                accept="image/*"
+                accept=".zip"
+                multiple
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
 
@@ -204,8 +202,8 @@ const Hero = ({
                       : "Upload Academic Certificates"}
                   </h3>
                   <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3 sm:mb-4 px-2">
-                    Secure blockchain verification with AI fraud detection.
-                    Upload one certificate image (JPG, PNG, GIF, etc.) for verification.
+                    Secure blockchain verification with AI fraud detection. Only
+                    ZIP files containing certificates are accepted.
                   </p>
                   <Button
                     type="button"
@@ -213,7 +211,7 @@ const Hero = ({
                     className="border-green-500 text-green-600 hover:bg-green-50 dark:border-green-400 dark:text-green-400 dark:hover:bg-green-950/20 px-4 sm:px-6 py-2 text-xs sm:text-sm"
                     onClick={() => fileInputRef.current?.click()}
                   >
-                    Choose Certificate Image
+                    Choose Certificate Files
                   </Button>
                 </div>
               </div>
@@ -223,7 +221,7 @@ const Hero = ({
             {files.length > 0 && (
               <div className="mt-4 sm:mt-6 space-y-3">
                 <h4 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
-                  Selected Certificate Image
+                  Selected Certificates ({files.length})
                 </h4>
                 <div className="space-y-2 max-h-40 sm:max-h-56 overflow-y-auto">
                   {files.map((file, index) => (
@@ -247,7 +245,7 @@ const Hero = ({
                         variant="ghost"
                         size="sm"
                         className="h-7 w-7 p-0 text-gray-400 hover:text-red-500 flex-shrink-0 ml-1"
-                        onClick={() => handleRemoveFile(index)}
+                        onClick={() => removeFile(index)}
                       >
                         <X className="h-3 w-3 sm:h-4 sm:w-4" />
                       </Button>

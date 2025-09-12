@@ -1,14 +1,16 @@
 import React, { useRef, useState } from 'react'
 import { Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useSelector, useDispatch } from 'react-redux'
-import { addFile, removeFile } from '../store/slices/fileSlice'
 
-function UploadZone() {
-  const dispatch = useDispatch();
-  const files = useSelector((state) => state.file.files);
+function UploadZone({ onFilesChange }) {
+  const [files, setFiles] = useState([])
   const [isDragOver, setIsDragOver] = useState(false)
   const fileInputRef = useRef(null)
+
+  const updateFiles = (next) => {
+    setFiles(next)
+    onFilesChange && onFilesChange(next)
+  }
 
   const handleDragOver = (e) => {
     e.preventDefault()
@@ -24,32 +26,27 @@ function UploadZone() {
     e.preventDefault()
     setIsDragOver(false)
     const droppedFiles = Array.from(e.dataTransfer.files)
-    const imageFiles = droppedFiles.filter(
-      (file) =>
-        file.type.startsWith("image/") ||
-        file.name.toLowerCase().match(/\.(jpg|jpeg|png|gif|bmp|webp|svg)$/)
+    const zipFiles = droppedFiles.filter(
+      (file) => file.type === 'application/zip' || file.type === 'application/x-zip-compressed' || file.name.toLowerCase().endsWith('.zip')
     )
-    if (imageFiles.length > 0) {
-      // Only allow one image - replace existing if any
-      dispatch(addFile(imageFiles[0]))
+    if (zipFiles.length > 0) {
+      updateFiles([...files, ...zipFiles])
     }
   }
 
   const handleFileSelect = (e) => {
     const selected = Array.from(e.target.files || [])
-    const imageFiles = selected.filter(
-      (file) =>
-        file.type.startsWith("image/") ||
-        file.name.toLowerCase().match(/\.(jpg|jpeg|png|gif|bmp|webp|svg)$/)
+    const zipFiles = selected.filter(
+      (file) => file.type === 'application/zip' || file.type === 'application/x-zip-compressed' || file.name.toLowerCase().endsWith('.zip')
     )
-    if (imageFiles.length > 0) {
-      // Only allow one image - replace existing if any
-      dispatch(addFile(imageFiles[0]))
+    if (zipFiles.length > 0) {
+      updateFiles([...files, ...zipFiles])
     }
   }
 
-  const handleRemoveFile = (idx) => {
-    dispatch(removeFile(idx))
+  const removeFile = (idx) => {
+    const next = files.filter((_, i) => i !== idx)
+    updateFiles(next)
   }
 
   return (
@@ -66,7 +63,8 @@ function UploadZone() {
           type="file"
           ref={fileInputRef}
           onChange={handleFileSelect}
-          accept="image/*"
+          accept=".zip"
+          multiple
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
 
@@ -76,13 +74,13 @@ function UploadZone() {
           </div>
           <div>
             <h3 className="text-lg font-semibold">
-              {isDragOver ? 'Drop certificate here' : 'Upload Academic Certificate'}
+              {isDragOver ? 'Drop certificates here' : 'Upload Academic Certificates'}
             </h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Upload one certificate image (JPG, PNG, GIF, etc.) for verification.
+              Only ZIP files containing certificates are accepted.
             </p>
             <Button type="button" variant="outline" className="border-green-500 text-green-600 hover:bg-green-50 dark:border-green-400 dark:text-green-400 dark:hover:bg-green-950/20 px-6" onClick={() => fileInputRef.current?.click()}>
-              Choose Certificate Image
+              Choose Certificate Files
             </Button>
           </div>
         </div>
@@ -95,7 +93,7 @@ function UploadZone() {
               <div className="truncate">
                 <span className="font-medium">{f.name}</span>
               </div>
-              <Button size="sm" variant="ghost" onClick={() => handleRemoveFile(idx)}>Remove</Button>
+              <Button size="sm" variant="ghost" onClick={() => removeFile(idx)}>Remove</Button>
             </div>
           ))}
         </div>

@@ -1,19 +1,13 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useTheme } from '../components/theme-provider';
-<<<<<<< HEAD
-// import { useLogin } from '../hooks/useAuth';
 
-=======
-import { useLogin } from '../services/queries';
->>>>>>> e2791e68e803a754ed54312938b9223d314ff261
 // Skipper UI Background Component with Framer Motion
 const SkipperBackground = () => {
   const [skippers] = useState(() => {
@@ -64,20 +58,20 @@ const SkipperBackground = () => {
 
 // Main Login Form Component with Framer Motion
 const LoginForm = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const { theme } = useTheme(); // Get the current theme
-  const loginMutation = useLogin(); // Use TanStack Query mutation
 
   const validateForm = () => {
     const newErrors = {};
     
-    if (!username) {
-      newErrors.username = 'Username is required';
-    } else if (username.length < 3) {
-      newErrors.username = 'Username must be at least 3 characters';
+    if (!email) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = 'Email is invalid';
     }
     
     if (!password) {
@@ -94,22 +88,12 @@ const LoginForm = () => {
     e.preventDefault();
     
     if (validateForm()) {
-      // Use TanStack Query mutation
-      loginMutation.mutate(
-        { username, password },
-        {
-          onSuccess: (data) => {
-            localStorage.setItem('token', data.data.token);
-            navigate('/');
-          },
-          onError: (error) => {
-            setErrors({
-              username: error.response.data.message,
-              password: error.response.data.message
-            });
-          }
-        }
-      );
+      setIsLoading(true);
+      // Simulate API call
+      setTimeout(() => {
+        setIsLoading(false);
+        alert('Login successful!');
+      }, 1500);
     }
   };
 
@@ -187,31 +171,31 @@ const LoginForm = () => {
                 >
                   <motion.div className="space-y-4" variants={itemVariants}>
                     <div className="space-y-2">
-                      <Label htmlFor="username" className="text-green-600">
-                        Username
+                      <Label htmlFor="email" className="text-green-600">
+                        Email address
                       </Label>
                       <Input
-                        id="username"
-                        name="username"
-                        type="text"
-                        autoComplete="username"
+                        id="email"
+                        name="email"
+                        type="email"
+                        autoComplete="email"
                         required
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         className={theme === 'light' 
-                          ? `bg-white border-gray-300 text-gray-900 ${errors.username ? 'border-red-500' : ''}`
-                          : `bg-gray-700 border-gray-600 text-white ${errors.username ? 'border-red-500' : ''}`
+                          ? `bg-white border-gray-300 text-gray-900 ${errors.email ? 'border-red-500' : ''}`
+                          : `bg-gray-700 border-gray-600 text-white ${errors.email ? 'border-red-500' : ''}`
                         }
-                        placeholder="Enter your username"
+                        placeholder="Enter your email"
                       />
-                      {errors.username && (
+                      {errors.email && (
                         <motion.p 
                           className="text-sm text-red-500 mt-1"
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
                           transition={{ duration: 0.2 }}
                         >
-                          {errors.username}
+                          {errors.email}
                         </motion.p>
                       )}
                     </div>
@@ -280,36 +264,21 @@ const LoginForm = () => {
                     </div>
 
                     <div className="text-sm">
-                      <Link to="/forgot-password" className="font-medium text-green-600 hover:text-green-700">
+                      <a href="#" className="font-medium text-green-600 hover:text-green-700">
                         Forgot your password?
-                      </Link>
+                      </a>
                     </div>
                   </motion.div>
-
-                  {/* Error Message */}
-                  {loginMutation.isError && (
-                    <motion.div 
-                      className="flex items-center space-x-2 text-red-500 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200 dark:border-red-800"
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                      <span className="text-sm">
-                        {loginMutation.error?.message || 'Login failed. Please try again.'}
-                      </span>
-                    </motion.div>
-                  )}
 
                   <motion.div variants={itemVariants}>
                     <Button
                       type="submit"
-                      disabled={loginMutation.isPending}
+                      disabled={isLoading}
                       className="w-full bg-green-600 hover:bg-green-700 text-white h-11"
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.99 }}
                     >
-                      {loginMutation.isPending ? (
+                      {isLoading ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           Signing in...
@@ -331,9 +300,9 @@ const LoginForm = () => {
             transition={{ duration: 0.4, delay: 0.6 }}
           >
             Don't have an account?{' '}
-            <Link to="/signup" className="font-medium text-green-600 hover:text-green-700">
+            <a href="#" className="font-medium text-green-600 hover:text-green-700">
               Sign up
-            </Link>
+            </a>
           </motion.div>
         </div>
       </div>

@@ -1,6 +1,5 @@
 import express from "express";
 import authRoutes from "./authRoutes.js";
-import certificateRoutes from "./certificateRoutes.js";
 import graduationRoutes from "./graduationRoutes.js";
 import internshipRoutes from "./internshipRoutes.js";
 import identityRoutes from "./identityRoutes.js";
@@ -9,11 +8,7 @@ import aiRoutes from "./aiRoutes.js";
 
 const router = express.Router();
 
-// Public routes
 router.use("/auth", authRoutes);
-
-// Protected routes
-router.use("/certificates", certificateRoutes);
 router.use("/graduation", graduationRoutes);
 router.use("/internships", internshipRoutes);
 router.use("/identity", identityRoutes);
