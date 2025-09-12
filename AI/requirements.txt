@@ -1,5 +1,8 @@
-opencv-python==4.8.0.76
-numpy==1.26.4
-Pillow==10.1.0
-ultralytics==8.3.194
-matplotlib==3.10.6
+opencv-python
+numpy
+Pillow
+ultralytics
+matplotlib
+fastapi
+uvicorn[standard]
+python-multipart
