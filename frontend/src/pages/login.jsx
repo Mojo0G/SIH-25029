@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
 import { useTheme } from '../components/theme-provider';
-import { useLogin } from '../hooks/useAuth';
+// import { useLogin } from '../hooks/useAuth';
 
 // Skipper UI Background Component with Framer Motion
 const SkipperBackground = () => {
