@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
 import { useTheme } from '../components/theme-provider';
+import { useLogin } from '../hooks/useAuth';
 
 // Skipper UI Background Component with Framer Motion
 const SkipperBackground = () => {
@@ -62,10 +63,9 @@ const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const { theme } = useTheme(); // Get the current theme
-  const navigate = useNavigate(); // Initialize navigate function
+  const loginMutation = useLogin(); // Use TanStack Query mutation
 
   const validateForm = () => {
     const newErrors = {};
@@ -90,13 +90,8 @@ const LoginForm = () => {
     e.preventDefault();
     
     if (validateForm()) {
-      setIsLoading(true);
-      // Simulate API call
-      setTimeout(() => {
-        setIsLoading(false);
-        // Redirect to admin page after successful login
-        navigate('/admin');
-      }, 1500);
+      // Use TanStack Query mutation
+      loginMutation.mutate({ email, password });
     }
   };
 
@@ -273,15 +268,30 @@ const LoginForm = () => {
                     </div>
                   </motion.div>
 
+                  {/* Error Message */}
+                  {loginMutation.isError && (
+                    <motion.div 
+                      className="flex items-center space-x-2 text-red-500 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200 dark:border-red-800"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                      <span className="text-sm">
+                        {loginMutation.error?.message || 'Login failed. Please try again.'}
+                      </span>
+                    </motion.div>
+                  )}
+
                   <motion.div variants={itemVariants}>
                     <Button
                       type="submit"
-                      disabled={isLoading}
+                      disabled={loginMutation.isPending}
                       className="w-full bg-green-600 hover:bg-green-700 text-white h-11"
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.99 }}
                     >
-                      {isLoading ? (
+                      {loginMutation.isPending ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           Signing in...
