@@ -44,7 +44,7 @@ def keywords (image_path, certificate_type="Graduation"):
          if len(duration) >= 2:
             fields["Internship Duration"] = f"{duration[0]} – {duration[1]}"   
 
-         role = re.search(r"(Internship|Intern|Trainee|Analyst|Engineer)", text, re.IGNORECASE)
+         role = re.search(r"(Role|Internship|Intern|Trainee|Analyst|Engineer)", text, re.IGNORECASE)
          if role:
             fields["Role"] = role.group(0)   
 
