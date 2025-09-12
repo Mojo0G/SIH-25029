@@ -1,5 +1,5 @@
 import os, pytesseract
-tess_path = os.getenv("TESSERACT_PATH", r"D:\Git Folders\SIH-2025\Tesseract-OCR\tesseract.exe")
+tess_path = os.getenv("TESSERACT_PATH", r"C:\Program Files\Tesseract-OCR\tesseract.exe")
 pytesseract.pytesseract.tesseract_cmd = tess_path
 
 import os
@@ -13,7 +13,10 @@ from typing import Optional
 
 import sys
 from importlib.machinery import SourceFileLoader
-from AI.elaverifier import check_identity_card
+
+# Add the AI directory to Python path to import elaverifier
+sys.path.append(os.path.dirname(__file__))
+from elaverifier import check_identity_card
 
 # Load OCR module from folder with a space in its name ("ocr modified/ocr.py")
 PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
@@ -99,6 +102,6 @@ async def ai_verify(file: UploadFile = File(...)):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("AI.api:app", host="0.0.0.0", port=int(os.getenv("PY_API_PORT", "8000")), reload=False)
+    uvicorn.run("api:app", host="0.0.0.0", port=int(os.getenv("PY_API_PORT", "8000")), reload=False)
 
 

@@ -1,0 +1,41 @@
+Install the requirements beforehand
+
+Run server at- /frontend - npm run dev
+               /backend - nodemon index.js
+               root/ - python -m uvicorn AI.api:app --host 0.0.0.0 --port 8000
+
+GET http://localhost:3000/health
+
+GET http://127.0.0.1:8000/health
+
+POST http://127.0.0.1:8000/ocr/extract (Add a file too in body form data)
+
+POST http://127.0.0.1:8000/ai/verify (Add a file too in body form data)
+
+POST http://localhost:3000/api/ocr/extract (Add a file too in body form data)
+
+POST http://localhost:3000/api/ocr/extract-all
+
+GET http://localhost:3000/api/ocr/:id (Add id)
+
+POST http://localhost:3000/api/ai/verify (Add a file too in body form data)
+
+POST http://localhost:3000/api/ai/verify-all
+
+GET http://localhost:3000/api/ai/:id (Add id)
+
+POST http://localhost:3000/api/auth/login (add json data for username and password)
+
+GET http://localhost:3000/api/graduation
+
+GET http://localhost:3000/api/graduation/:id (Add id)
+
+POST http://localhost:3000/api/graduation
+
+PUT http://localhost:3000/api/graduation/:id (Add id)
+
+DELETE http://localhost:3000/api/graduation/:id (Add id)
+
+GET http://localhost:3000/api/identity
+
+GET http://localhost:3000/api/internships
