@@ -43,12 +43,6 @@ def finaltext(image_path):
     
     # Check if file exists
     if not os.path.exists(image_path):
-        print(f"❌ File not found: {image_path}")
-        print(f"📁 Current directory: {os.getcwd()}")
-        print("📋 Available files:")
-        for file in os.listdir('.'):
-            if file.lower().endswith(('.png', '.jpg', '.jpeg')):
-                print(f"   - {file}")
         raise ValueError(f"Image not found at {image_path}")
     
     img = cv2.imread(image_path)
@@ -223,12 +217,6 @@ def extract_certificate_fields(image_path):
     # Get OCR text
     text = finaltext(image_path)
     
-    # Print OCR text for debugging
-    print(f"\n📄 OCR TEXT PREVIEW:")
-    print("-" * 50)
-    print(text[:500] + "..." if len(text) > 500 else text)
-    print("-" * 50)
-    
     # Initialize extracted data structure
     extracted_data = {}
     
@@ -266,26 +254,59 @@ def extract_certificate_fields(image_path):
     return extracted_data
 
 # ============================================================================
-# STEP 5: JSON VALIDATION
+# STEP 5: JSON VALIDATION FUNCTIONS (ADDED FOR API COMPATIBILITY)
 # ============================================================================
 
-def load_json_data(json_file):
-    """Load the true data from JSON file"""
-    if not os.path.exists(json_file):
-        print(f"❌ JSON file not found: {json_file}")
-        print(f"📁 Current directory: {os.getcwd()}")
-        print("📋 Available JSON files:")
-        for file in os.listdir('.'):
-            if file.lower().endswith('.json'):
-                print(f"   - {file}")
-        raise ValueError(f"JSON file not found: {json_file}")
+def load_json_database():
+    """Load JSON database from backend/data folder"""
+    import os
     
-    with open(json_file, 'r') as f:
-        return json.load(f)
+    print("🔍 Looking for database file...")
+    print(f"📁 Current working directory: {os.getcwd()}")
+    print(f"📁 Script location: {os.path.dirname(__file__)}")
+    
+    # Updated paths based on your directory structure
+    possible_paths = [
+        # From ai/ directory to ../backend/data/Graduation.json
+        "../backend/data/Graduation.json",
+        os.path.join("..", "backend", "data", "Graduation.json"),
+        
+        # Absolute path from script location
+        os.path.join(os.path.dirname(__file__), "..", "..", "backend", "data", "Graduation.json"),
+        
+        # From sih/ root directory
+        os.path.join("backend", "data", "Graduation.json"),
+        
+        # Fallback paths
+        "backend/data/Graduation.json",
+        "Graduation.json"
+    ]
+    
+    for json_path in possible_paths:
+        print(f"🔍 Trying path: {json_path}")
+        abs_path = os.path.abspath(json_path)
+        print(f"🔍 Absolute path: {abs_path}")
+        
+        if os.path.exists(json_path):
+            try:
+                with open(json_path, 'r') as f:
+                    data = json.load(f)
+                    print(f"✅ JSON database loaded from: {json_path} ({len(data)} records)")
+                    return data
+            except Exception as e:
+                print(f"❌ Error loading {json_path}: {e}")
+                continue
+        else:
+            print(f"❌ File not found: {json_path}")
+    
+    print("❌ JSON database not found in any expected location")
+    return None
 
 def find_matching_record(extracted_data, json_data):
     """Find matching record by roll number or student name"""
-    
+    if not json_data:
+        return None
+        
     # Try to match by roll number first
     if "rollNumber" in extracted_data:
         for record in json_data:
@@ -304,7 +325,6 @@ def find_matching_record(extracted_data, json_data):
 
 def compare_fields(extracted_data, matching_record):
     """Compare extracted data with JSON record field by field"""
-    
     field_comparisons = {}
     total_score = 0
     total_fields = 0
@@ -367,79 +387,54 @@ def compare_fields(extracted_data, matching_record):
         field_comparisons[display_name] = comparison
     
     overall_accuracy = (total_score / total_fields * 100) if total_fields > 0 else 0
-    
     return field_comparisons, overall_accuracy
 
-# ============================================================================
-# STEP 6: MAIN PROCESSING FUNCTION
-# ============================================================================
-
-def validate_certificate(image_path, json_file="true_data.json"):
-    """Complete pipeline to validate certificate"""
-    
+def validate_certificate_data(extracted_data, json_data=None):
+    """Complete validation pipeline - ADDED FOR API COMPATIBILITY"""
     print("🚀 STARTING CERTIFICATE VALIDATION")
-    print("=" * 70)
-    print(f"📁 Image: {image_path}")
-    print(f"🗄️  Database: {json_file}")
     print("=" * 70)
     
     try:
-        # Step 1: Extract fields from certificate
-        extracted_data = extract_certificate_fields(image_path)
+        # If no JSON data provided, try to load it
+        if json_data is None:
+            json_data = load_json_database()
         
-        print("\n📊 EXTRACTED DATA:")
-        print("-" * 50)
-        if not extracted_data:
-            print("❌ No data extracted!")
-            return None
+        if not json_data:
+            return {
+                'status': 'error',
+                'message': 'Database not found or empty',
+                'accuracy': 0,
+                'is_valid': False,
+                'is_verified': False
+            }
         
-        for key, value in extracted_data.items():
-            print(f"{key}: {value}")
-        
-        # Step 2: Load JSON database
-        print("\n🔄 Step 4: Loading database...")
-        json_data = load_json_data(json_file)
-        print(f"✅ Database loaded ({len(json_data)} records)")
-        
-        # Step 3: Find matching record
-        print("\n🔍 Step 5: Finding matching record...")
+        # Find matching record
+        print("🔍 Finding matching record...")
         matching_record = find_matching_record(extracted_data, json_data)
         
         if not matching_record:
             print("❌ NO MATCHING RECORD FOUND")
-            print(f"🔍 Searched for:")
-            if "rollNumber" in extracted_data:
-                print(f"   Roll Number: {extracted_data['rollNumber']}")
-            if "studentName" in extracted_data:
-                print(f"   Student Name: {extracted_data['studentName']}")
-            return None
+            return {
+                'status': 'not_found',
+                'message': 'No matching record found in database',
+                'extracted_data': extracted_data,
+                'accuracy': 0,
+                'is_valid': False,
+                'is_verified': False
+            }
         
         print("✅ MATCHING RECORD FOUND!")
         print(f"📋 Record ID: {matching_record.get('id')}")
         
-        # Step 4: Compare fields
-        print("\n🔄 Step 6: Comparing fields...")
+        # Compare fields
+        print("🔄 Comparing fields...")
         field_comparisons, accuracy = compare_fields(extracted_data, matching_record)
-        
-        # Display detailed comparison
-        print("\n" + "=" * 70)
-        print("🔍 DETAILED FIELD COMPARISON")
-        print("=" * 70)
-        
-        for field_name, comparison in field_comparisons.items():
-            status = "✅" if comparison["match"] else "❌"
-            score = comparison["score"]
-            
-            print(f"\n{field_name}:")
-            print(f"  Extracted: {comparison['extracted']}")
-            print(f"  Database:  {comparison['json']}")
-            print(f"  Status:    {status} ({score*100:.0f}% match)")
         
         # Final results
         is_verified = matching_record.get('verifiedStatus', False)
         is_valid = accuracy >= 70 and is_verified
         
-        print("\n" + "=" * 70)
+        print("=" * 70)
         print("🎯 FINAL VALIDATION RESULTS")
         print("=" * 70)
         print(f"Field Accuracy: {accuracy:.1f}%")
@@ -448,20 +443,28 @@ def validate_certificate(image_path, json_file="true_data.json"):
         print("=" * 70)
         
         return {
+            'status': 'found',
             'extracted_data': extracted_data,
             'matching_record': matching_record,
             'field_comparisons': field_comparisons,
             'accuracy': accuracy,
             'is_valid': is_valid,
-            'is_verified': is_verified
+            'is_verified': is_verified,
+            'total_records_searched': len(json_data)
         }
         
     except Exception as e:
         print(f"❌ ERROR: {str(e)}")
-        return None
+        return {
+            'status': 'error',
+            'message': str(e),
+            'accuracy': 0,
+            'is_valid': False,
+            'is_verified': False
+        }
 
 # ============================================================================
-# MAIN EXECUTION
+# STANDALONE EXECUTION (FOR TESTING) - UNCHANGED
 # ============================================================================
 
 if __name__ == "__main__":
@@ -488,36 +491,30 @@ if __name__ == "__main__":
     
     print("=" * 70)
     
-    # Configure your files here
+    # Configure your files here for testing
     image_path = "certificate.png"      # CHANGE THIS TO YOUR IMAGE FILE
-    json_file = "true_data.json"        # CHANGE THIS TO YOUR JSON FILE
+    json_file = "backend/data/Graduation.json"        # CHANGE THIS TO YOUR JSON FILE
     
-    print(f"🎯 Processing: {image_path}")
-    
-    # Run the validation
-    result = validate_certificate(image_path, json_file)
-    
-    if result:
-        print(f"\n💾 Validation completed!")
-        print(f"📈 Extracted {len(result['extracted_data'])} fields")
-        print(f"🎯 Final result: {'VALID' if result['is_valid'] else 'INVALID'}")
+    if os.path.exists(image_path) and os.path.exists(json_file):
+        print(f"🎯 Processing: {image_path}")
         
-        # Save results to file
-        with open('validation_results.json', 'w') as f:
-            # Make result JSON serializable
-            save_result = {
-                'extracted_data': result['extracted_data'],
-                'matching_record': result['matching_record'],
-                'accuracy': result['accuracy'],
-                'is_valid': result['is_valid'],
-                'is_verified': result['is_verified']
-            }
-            json.dump(save_result, f, indent=2)
-        print("💾 Results saved to 'validation_results.json'")
+        # Load JSON data
+        with open(json_file, 'r') as f:
+            json_data = json.load(f)
+        
+        # Extract fields
+        extracted_data = extract_certificate_fields(image_path)
+        
+        # Validate
+        result = validate_certificate_data(extracted_data, json_data)
+        
+        if result:
+            print(f"\n💾 Validation completed!")
+            print(f"📈 Extracted {len(result.get('extracted_data', {}))} fields")
+            print(f"🎯 Final result: {'VALID' if result.get('is_valid') else 'INVALID'}")
+        else:
+            print("\n❌ Validation failed!")
     else:
-        print("\n❌ Validation failed!")
-        print("\n💡 Tips:")
-        print("   1. Make sure your certificate image is clear and readable")
-        print("   2. Check that the file names match exactly") 
-        print("   3. Ensure the certificate contains the required fields")
-        print("   4. Verify your JSON database has matching records")
+        print(f"❌ Files not found:")
+        print(f"   Image: {image_path} ({'✅' if os.path.exists(image_path) else '❌'})")
+        print(f"   Database: {json_file} ({'✅' if os.path.exists(json_file) else '❌'})")

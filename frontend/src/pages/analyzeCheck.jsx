@@ -36,59 +36,107 @@ const AnalyzeCheck = () => {
   const [selectedResult, setSelectedResult] = useState(null);
   const [databaseMatches, setDatabaseMatches] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState(null);
+  const [aiVerificationData, setAiVerificationData] = useState(null);
 
   useEffect(() => {
     // Get the selected result from location state or use the first result
     if (location.state?.selectedResult) {
       setSelectedResult(location.state.selectedResult);
-      performDatabaseCheck(location.state.selectedResult);
+      performAIVerification(location.state.selectedResult);
     } else if (results && results.length > 0) {
       setSelectedResult(results[0]);
-      performDatabaseCheck(results[0]);
+      performAIVerification(results[0]);
     } else {
       navigate('/analyze');
     }
   }, [location.state, results, navigate]);
 
-  const performDatabaseCheck = async (result) => {
+  const performAIVerification = async (result) => {
     setIsLoading(true);
+    setApiError(null);
     try {
-      // Extract name from OCR data
-      const extractedName = result.ocrData?.fields?.name || 
-                           result.ocrData?.text?.split('\n')[0] || 
-                           'Unknown';
+      // Use the complete AI verification endpoint
+      const aiResult = await completeAIVerification(result.file);
       
-      // Check against all database collections
-      const checks = await Promise.all([
-        checkDatabase('graduation', extractedName),
-        checkDatabase('internship', extractedName),
-        checkDatabase('identity', extractedName),
-        checkDatabase('jrsecondary', extractedName),
-        checkDatabase('srsecondary', extractedName)
-      ]);
-      
-      const allMatches = checks.flat().filter(match => match);
-      setDatabaseMatches(allMatches);
+      if (aiResult.success) {
+        // Store complete AI verification data
+        setAiVerificationData(aiResult);
+
+        // Extract database validation results for legacy display
+        const dbValidation = aiResult.database_validation;
+        if (dbValidation && dbValidation.status === 'found') {
+          const match = {
+            studentName: dbValidation.matching_record.studentName,
+            rollNumber: dbValidation.matching_record.rollNumber,
+            institutionName: dbValidation.matching_record.institutionName,
+            course: dbValidation.matching_record.course,
+            cgpa: dbValidation.matching_record.cgpa,
+            accuracy: dbValidation.accuracy,
+            verified: dbValidation.is_verified
+          };
+          setDatabaseMatches([match]);
+        } else {
+          setDatabaseMatches([]);
+        }
+
+        // Update selected result with AI data
+        setSelectedResult(prev => ({
+          ...prev,
+          aiData: {
+            ela: aiResult.ela,
+            database_validation: aiResult.database_validation,
+            verification_method: aiResult.verification_method,
+            verified: aiResult.verified,
+            generated_images: aiResult.generated_images
+          }
+        }));
+      }
     } catch (error) {
-      console.error('Database check failed:', error);
+      console.error('AI verification failed:', error);
+      setApiError(error.message);
+      setDatabaseMatches([]);
+      setAiVerificationData(null);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const checkDatabase = async (collection, name) => {
+  const completeAIVerification = async (file) => {
     try {
-      const response = await fetch(`/api/database/${collection}`);
-      if (!response.ok) return [];
+      console.log('🔄 Starting complete AI verification...');
       
-      const data = await response.json();
-      return data.filter(item => 
-        item.studentName?.toLowerCase().includes(name.toLowerCase()) ||
-        item.name?.toLowerCase().includes(name.toLowerCase())
-      );
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await fetch('http://localhost:8000/ai/verify', {
+        method: 'POST',
+        body: formData
+      });
+      
+      console.log('Response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Server error:', errorText);
+        throw new Error(`Server returned ${response.status}: ${errorText}`);
+      }
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const responseText = await response.text();
+        console.error('Non-JSON response:', responseText);
+        throw new Error(`Expected JSON, got ${contentType}: ${responseText}`);
+      }
+      
+      const result = await response.json();
+      console.log('✅ AI verification successful:', result);
+      
+      return result;
+      
     } catch (error) {
-      console.error(`Error checking ${collection}:`, error);
-      return [];
+      console.error('❌ AI verification failed:', error);
+      throw error;
     }
   };
 
@@ -96,18 +144,32 @@ const AnalyzeCheck = () => {
     navigate('/analyze');
   };
 
-  const getTamperedImageUrl = (fileName) => {
-    // Extract the base name from the original filename
-    const baseName = fileName.split('.')[0];
-    // Try multiple possible locations for the image
-    return `/api/tampered-images/${baseName}_with_boxes.jpg`;
+  // Get image URLs from AI verification data
+  const getImageUrl = (type) => {
+    if (!aiVerificationData || !aiVerificationData.generated_images) {
+      return null;
+    }
+    
+    const image = aiVerificationData.generated_images.find(img => img.type === type);
+    if (image) {
+      return `http://localhost:8000${image.url}`;
+    }
+    
+    // Fallback to filename-based approach
+    const baseName = selectedResult?.fileName?.split('.')[0] || 'certificate';
+    return `http://localhost:8000/images/${baseName}_${type}.jpg`;
   };
 
-  const getAnalysisImageUrl = (fileName) => {
-    // Extract the base name from the original filename
-    const baseName = fileName.split('.')[0];
-    // Try multiple possible locations for the image
-    return `/api/tampered-images/${baseName}_ela_analysis.jpg`;
+  // NEW: Check if we should show ELA analysis images
+  const shouldShowELAImages = () => {
+    // Show ELA images if:
+    // 1. No database match found, OR
+    // 2. Database check failed/error
+    const dbValidation = aiVerificationData?.database_validation;
+    return !dbValidation || 
+           dbValidation.status !== 'found' || 
+           dbValidation.status === 'error' ||
+           databaseMatches.length === 0;
   };
 
   const formatDate = (dateString) => {
@@ -116,6 +178,70 @@ const AnalyzeCheck = () => {
 
   const createImageUrl = (file) => {
     return URL.createObjectURL(file);
+  };
+
+  // Enhanced Image Component with Loading and Error States
+  const ImageWithFallback = ({ src, alt, type }) => {
+    const [imageError, setImageError] = useState(false);
+    const [imageLoading, setImageLoading] = useState(true);
+
+    const handleImageError = (e) => {
+      console.error(`❌ Failed to load ${type} image:`, src);
+      setImageError(true);
+      setImageLoading(false);
+    };
+
+    const handleImageLoad = () => {
+      console.log(`✅ Successfully loaded ${type} image:`, src);
+      setImageLoading(false);
+    };
+
+    if (!src) {
+      return (
+        <div className="w-full h-48 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center">
+          <div className="text-center">
+            <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+            <p className="text-gray-500 dark:text-gray-400">Image not available</p>
+            <p className="text-xs text-gray-400 mt-1">No URL provided</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (imageError) {
+      return (
+        <div className="w-full h-48 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center">
+          <div className="text-center">
+            <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+            <p className="text-gray-500 dark:text-gray-400">{type} image failed to load</p>
+            <p className="text-xs text-gray-400 mt-1">{src}</p>
+            <button 
+              onClick={() => window.open(src, '_blank')}
+              className="text-blue-500 text-xs mt-2 underline hover:text-blue-700"
+            >
+              Try direct link
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="relative">
+        {imageLoading && (
+          <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-xl flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          </div>
+        )}
+        <img
+          src={src}
+          alt={alt}
+          className={`w-full rounded-xl shadow-lg transition-opacity duration-300 ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
+          onError={handleImageError}
+          onLoad={handleImageLoad}
+        />
+      </div>
+    );
   };
 
   if (!selectedResult) {
@@ -191,40 +317,32 @@ const AnalyzeCheck = () => {
 
               {/* Status Indicators */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className={`p-4 rounded-lg ${selectedResult.verified ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
+                <div className={`p-4 rounded-lg ${aiVerificationData?.verified ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
                   <div className="flex items-center space-x-2">
-                    {selectedResult.verified ? 
+                    {aiVerificationData?.verified ? 
                       <CheckCircle className="h-5 w-5 text-green-500" /> : 
                       <XCircle className="h-5 w-5 text-red-500" />
                     }
-                    <span className={`font-medium ${selectedResult.verified ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
-                      {selectedResult.verified ? 'Verified' : 'Forgery'}
+                    <span className={`font-medium ${aiVerificationData?.verified ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+                      {aiVerificationData?.verified ? 'Verified' : 'Not Verified'}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Overall Verification</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {aiVerificationData?.verification_method || 'Overall Verification'}
+                  </p>
                 </div>
 
-                <div className={`p-4 rounded-lg ${selectedResult.aiData?.ela?.verdict === 'GENUINE' ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
-                  <div className="flex items-center space-x-2">
-                    <AlertCircle className={`h-5 w-5 ${selectedResult.aiData?.ela?.verdict === 'GENUINE' ? 'text-green-500' : 'text-red-500'}`} />
-                    <span className={`font-medium ${selectedResult.aiData?.ela?.verdict === 'GENUINE' ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
-                      {selectedResult.aiData?.ela?.verdict === 'GENUINE' ? 'GENUINE' : 'Seems to be tempered'}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Tampering Analysis</p>
-                </div>
-
-                {/* Tampering Accuracy Score */}
-                {selectedResult.aiData?.ela?.score && (
-                  <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                {/* Show ELA status only if no database match */}
+                {shouldShowELAImages() && (
+                  <div className={`p-4 rounded-lg ${aiVerificationData?.ela?.verdict === 'GENUINE' ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
                     <div className="flex items-center space-x-2">
-                      <Brain className="h-5 w-5 text-blue-500" />
-                      <span className="font-medium text-blue-700 dark:text-blue-400">
-                        Tampering Score: {selectedResult.aiData.ela.score.toFixed(2)}
+                      <AlertCircle className={`h-5 w-5 ${aiVerificationData?.ela?.verdict === 'GENUINE' ? 'text-green-500' : 'text-red-500'}`} />
+                      <span className={`font-medium ${aiVerificationData?.ela?.verdict === 'GENUINE' ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+                        {aiVerificationData?.ela?.verdict || 'Unknown'}
                       </span>
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      {selectedResult.aiData.ela.score > 50 ? 'High tampering probability' : 'Low tampering probability'}
+                      ELA Analysis ({aiVerificationData?.ela?.risk_level || 'Unknown'} Risk)
                     </p>
                   </div>
                 )}
@@ -238,9 +356,24 @@ const AnalyzeCheck = () => {
                     </span>
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    {databaseMatches.length > 0 ? `${databaseMatches.length} matching record(s)` : 'Certificate not found in database'}
+                    {databaseMatches.length > 0 ? `Accuracy: ${databaseMatches[0].accuracy?.toFixed(1)}%` : 'Certificate not found in database'}
                   </p>
                 </div>
+
+                {/* Verification Note */}
+                {aiVerificationData?.analysis_summary?.verification_note && (
+                  <div className="col-span-full p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                    <div className="flex items-start space-x-2">
+                      <Shield className="h-5 w-5 text-blue-500 mt-0.5" />
+                      <div>
+                        <span className="font-medium text-blue-700 dark:text-blue-400">Verification Note</span>
+                        <p className="text-sm text-blue-600 dark:text-blue-300 mt-1">
+                          {aiVerificationData.analysis_summary.verification_note}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -250,44 +383,20 @@ const AnalyzeCheck = () => {
                 <FileText className="h-6 w-6 mr-2 text-blue-500" />
                 Extracted Text (OCR)
               </h2>
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 max-h-60 overflow-y-auto">
-                {selectedResult.ocrData?.text ? (
-                  <div className="text-sm text-gray-700 dark:text-gray-300">
-                    {selectedResult.ocrData.text.split('\n').map((line, index) => (
-                      <div key={index} className="mb-1">
-                        {line.trim() && (
-                          <span className="block leading-relaxed">
-                            {line}
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-500 dark:text-gray-400 italic">
-                    No text extracted from this document
-                  </p>
-                )}
-              </div>
               
-              {/* Structured OCR Fields */}
-              {selectedResult.ocrData?.fields && (
-                <div className="mt-4">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                    Structured Data
-                  </h3>
-                  <div className="grid grid-cols-1 gap-3">
-                    {Object.entries(selectedResult.ocrData.fields).map(([key, value]) => (
-                      <div key={key} className="flex justify-between items-center p-3 bg-white dark:bg-gray-600 rounded-lg">
-                        <span className="font-medium text-gray-600 dark:text-gray-400 capitalize">
-                          {key.replace(/([A-Z])/g, ' $1').trim()}:
-                        </span>
-                        <span className="text-gray-900 dark:text-white font-medium">
-                          {value || 'Not detected'}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+              {/* Display extracted fields from AI response */}
+              {aiVerificationData?.extracted_fields && (
+                <div className="space-y-3">
+                  {Object.entries(aiVerificationData.extracted_fields).map(([key, value]) => (
+                    <div key={key} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <span className="font-medium text-gray-600 dark:text-gray-400 capitalize">
+                        {key.replace(/([A-Z])/g, ' $1').trim()}:
+                      </span>
+                      <span className="text-gray-900 dark:text-white font-medium">
+                        {value || 'Not detected'}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -300,18 +409,28 @@ const AnalyzeCheck = () => {
                 {isLoading && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-500 ml-2"></div>}
               </h2>
               
-              {databaseMatches.length > 0 ? (
+              {apiError ? (
+                <div className="flex items-center space-x-2 text-red-600 dark:text-red-400">
+                  <XSquare className="h-5 w-5" />
+                  <div>
+                    <span className="font-medium block">Verification failed</span>
+                    <span className="text-sm">{apiError}</span>
+                  </div>
+                </div>
+              ) : databaseMatches.length > 0 ? (
                 <div className="space-y-3">
                   <div className="flex items-center space-x-2 text-green-600 dark:text-green-400">
                     <CheckSquare className="h-5 w-5" />
-                    <span className="font-medium">Found {databaseMatches.length} matching record(s)</span>
+                    <span className="font-medium">
+                      Found matching record with {databaseMatches[0].accuracy?.toFixed(1)}% accuracy
+                    </span>
                   </div>
                   {databaseMatches.map((match, index) => (
                     <div key={index} className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
                       <div className="grid grid-cols-2 gap-2 text-sm">
                         <div>
                           <span className="font-medium text-gray-600 dark:text-gray-400">Name:</span>
-                          <p className="text-gray-900 dark:text-white">{match.studentName || match.name}</p>
+                          <p className="text-gray-900 dark:text-white">{match.studentName || 'Not available'}</p>
                         </div>
                         {match.rollNumber && (
                           <div>
@@ -331,6 +450,18 @@ const AnalyzeCheck = () => {
                             <p className="text-gray-900 dark:text-white">{match.course}</p>
                           </div>
                         )}
+                        {match.cgpa && (
+                          <div>
+                            <span className="font-medium text-gray-600 dark:text-gray-400">CGPA:</span>
+                            <p className="text-gray-900 dark:text-white">{match.cgpa}</p>
+                          </div>
+                        )}
+                        <div className="col-span-2">
+                          <span className="font-medium text-gray-600 dark:text-gray-400">Verification Status:</span>
+                          <p className={`font-medium ${match.verified ? 'text-green-600' : 'text-red-600'}`}>
+                            {match.verified ? 'Verified in Database' : 'Not Verified'}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -344,9 +475,9 @@ const AnalyzeCheck = () => {
             </div>
           </div>
 
-          {/* Right Column - Analysis Images */}
+          {/* Right Column - Analysis Images (CONDITIONAL) */}
           <div className="space-y-6">
-            {/* Original Certificate */}
+            {/* Original Certificate - ALWAYS SHOW */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
                 <ImageIcon className="h-6 w-6 mr-2 text-blue-500" />
@@ -361,59 +492,86 @@ const AnalyzeCheck = () => {
               </div>
             </div>
 
-            {/* Tampering Analysis Image */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
-                <AlertCircle className="h-6 w-6 mr-2 text-red-500" />
-                Tampering Analysis
-              </h2>
-              <div className="relative">
-                <img
-                  src={getTamperedImageUrl(selectedResult.fileName)}
-                  alt="Tampering analysis"
-                  className="w-full rounded-xl shadow-lg"
-                  onError={(e) => {
-                    console.log('Failed to load tampered image:', getTamperedImageUrl(selectedResult.fileName));
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
-                  }}
-                />
-                <div className="hidden w-full h-48 bg-gray-100 dark:bg-gray-700 rounded-xl items-center justify-center">
-                  <div className="text-center">
-                    <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500 dark:text-gray-400">Tampering analysis image not available</p>
-                    <p className="text-xs text-gray-400 mt-1">Looking for: {getTamperedImageUrl(selectedResult.fileName)}</p>
-                  </div>
+            {/* Database Found Message - SHOW WHEN DATABASE MATCH FOUND */}
+            {databaseMatches.length > 0 && (
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                  <Database className="h-6 w-6 mr-2 text-green-500" />
+                  Verification Complete
+                </h2>
+                <div className="text-center py-8">
+                  <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    Certificate Verified Successfully
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    This certificate was found and verified in our database with {databaseMatches[0].accuracy?.toFixed(1)}% accuracy.
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-500">
+                    No additional tampering analysis required.
+                  </p>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* ELA Analysis Image */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
-                <Brain className="h-6 w-6 mr-2 text-purple-500" />
-                ELA Analysis
-              </h2>
-              <div className="relative">
-                <img
-                  src={getAnalysisImageUrl(selectedResult.fileName)}
-                  alt="ELA analysis"
-                  className="w-full rounded-xl shadow-lg"
-                  onError={(e) => {
-                    console.log('Failed to load ELA image:', getAnalysisImageUrl(selectedResult.fileName));
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
-                  }}
-                />
-                <div className="hidden w-full h-48 bg-gray-100 dark:bg-gray-700 rounded-xl items-center justify-center">
-                  <div className="text-center">
-                    <Brain className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500 dark:text-gray-400">ELA analysis image not available</p>
-                    <p className="text-xs text-gray-400 mt-1">Looking for: {getAnalysisImageUrl(selectedResult.fileName)}</p>
-                  </div>
+            {/* ELA Analysis Images - ONLY SHOW WHEN NO DATABASE MATCH */}
+            {shouldShowELAImages() && (
+              <>
+                {/* ELA Analysis Image */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                    <Brain className="h-6 w-6 mr-2 text-purple-500" />
+                    ELA Analysis
+                  </h2>
+                  <ImageWithFallback 
+                    src={getImageUrl('noise')}
+                    alt="ELA analysis"
+                    type="ELA analysis"
+                  />
                 </div>
-              </div>
-            </div>
+
+                {/* Tampering Analysis Image */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                    <AlertCircle className="h-6 w-6 mr-2 text-red-500" />
+                    Tampering Analysis
+                  </h2>
+                  <ImageWithFallback 
+                    src={getImageUrl('tampered')}
+                    alt="Tampering analysis"
+                    type="Tampering analysis"
+                  />
+                </div>
+
+                {/* Debug: Generated Images Info - ONLY WHEN SHOWING ELA */}
+                {aiVerificationData?.generated_images && (
+                  <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                      <ImageIcon className="h-6 w-6 mr-2 text-green-500" />
+                      Generated Images ({aiVerificationData.generated_images.length})
+                    </h2>
+                    <div className="space-y-2">
+                      {aiVerificationData.generated_images.map((image, index) => (
+                        <div key={index} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
+                          <span className="text-sm font-medium capitalize">{image.type}:</span>
+                          <div className="text-right">
+                            <span className="text-sm text-blue-600 block">{image.filename}</span>
+                            <a 
+                              href={`http://localhost:8000${image.url}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-blue-500 underline"
+                            >
+                              View directly
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
