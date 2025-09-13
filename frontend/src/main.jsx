@@ -4,12 +4,15 @@ import './index.css'
 import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'
 import { ThemeProvider } from './components/theme-provider'
+import { UploadProvider } from './context/UploadContext'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
       <BrowserRouter>
-        <App/>
+        <UploadProvider>
+          <App/>
+        </UploadProvider>
       </BrowserRouter>
     </ThemeProvider>
   </StrictMode>,

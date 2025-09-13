@@ -84,8 +84,12 @@ def _run_logo_check(image_path: str) -> Optional[dict]:
 async def ai_verify(file: UploadFile = File(...)):
     try:
         temp_path = _save_temp(file)
-
-        ela = check_identity_card(temp_path)
+        
+        # Use the filename from the uploaded file for image generation
+        filename = file.filename or "upload"
+        base_name = os.path.splitext(filename)[0]
+        
+        ela = check_identity_card(temp_path, base_name)
         logo = _run_logo_check(temp_path)
 
         verdict = (ela and ela.get("verdict") == "GENUINE") and (logo is None or logo.get("has_logo", False))
@@ -95,6 +99,7 @@ async def ai_verify(file: UploadFile = File(...)):
             "ela": ela,
             "logo": logo,
             "verified": bool(verdict),
+            "fileName": filename,  # Include the filename in the response
         }
     except Exception as e:
         return JSONResponse(status_code=500, content={"success": False, "error": str(e)})

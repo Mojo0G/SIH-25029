@@ -1,6 +1,7 @@
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
+import path from "path";
 import routes from "./routes/index.js";
 
 const app = express();
@@ -16,6 +17,12 @@ app.use(
     credentials: true,
   })
 );
+
+// Serve static files for tampered analysis images
+app.use('/api/tampered-images', express.static(path.join(process.cwd(), '..', 'AI', 'ela _outputs')));
+app.use('/api/tampered-images', express.static(path.join(process.cwd(), '..', 'AI')));
+// Serve images from root directory (for UUID-based images)
+app.use('/api/tampered-images', express.static(path.join(process.cwd(), '..')));
 
 app.get("/health", (req, res) => {
   res.status(200).send("Server is healthy");

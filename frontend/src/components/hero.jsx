@@ -4,6 +4,8 @@ import {
   Upload,
   X,
   File,
+  Image,
+  Loader2,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,6 +13,9 @@ import { useState, useRef } from "react";
 import { TextFade } from "./textFade";
 import { HeroDescription } from "../components/heroDescription";
 import { motion } from "framer-motion";
+import { useUpload } from "../context/UploadContext";
+import { useNavigate } from "react-router-dom";
+import { extractOCR, verifyAI, getGraduationData, getIdentityData, getInternshipData } from "../services/api";
 
 const Hero = ({
   badge = "🚀 SIH 2025 Project",
@@ -31,9 +36,22 @@ const Hero = ({
     alt: "Hero section demo image showing interface components",
   },
 }) => {
-  const [files, setFiles] = useState([]);
+  const { 
+    files, 
+    isUploading, 
+    isAnalyzing, 
+    error, 
+    setFiles, 
+    addFiles, 
+    removeFile, 
+    setUploading, 
+    setAnalyzing, 
+    setError, 
+    setResults 
+  } = useUpload();
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -50,38 +68,109 @@ const Hero = ({
     setIsDragOver(false);
 
     const droppedFiles = Array.from(e.dataTransfer.files);
-    const zipFiles = droppedFiles.filter(
+    const imageFiles = droppedFiles.filter(
       (file) =>
-        file.type === "application/zip" ||
-        file.type === "application/x-zip-compressed" ||
-        file.name.toLowerCase().endsWith(".zip")
+        file.type.startsWith("image/") &&
+        (file.type === "image/jpeg" ||
+         file.type === "image/jpg" ||
+         file.type === "image/png" ||
+         file.type === "image/svg+xml" ||
+         file.type === "image/webp")
     );
 
-    if (zipFiles.length > 0) {
-      setFiles((prev) => [...prev, ...zipFiles]);
+    if (imageFiles.length > 0) {
+      addFiles(imageFiles);
+    } else {
+      setError("Please upload only image files (JPEG, PNG, SVG, WebP)");
     }
   };
 
   const handleFileSelect = (e) => {
     const selectedFiles = Array.from(e.target.files);
-    const zipFiles = selectedFiles.filter(
+    const imageFiles = selectedFiles.filter(
       (file) =>
-        file.type === "application/zip" ||
-        file.type === "application/x-zip-compressed" ||
-        file.name.toLowerCase().endsWith(".zip")
+        file.type.startsWith("image/") &&
+        (file.type === "image/jpeg" ||
+         file.type === "image/jpg" ||
+         file.type === "image/png" ||
+         file.type === "image/svg+xml" ||
+         file.type === "image/webp")
     );
 
-    if (zipFiles.length > 0) {
-      setFiles((prev) => [...prev, ...zipFiles]);
+    if (imageFiles.length > 0) {
+      addFiles(imageFiles);
+    } else {
+      setError("Please upload only image files (JPEG, PNG, SVG, WebP)");
     }
   };
 
-  const removeFile = (index) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
+  const handleRemoveFile = (index) => {
+    removeFile(index);
   };
 
   const getFileIcon = (fileType) => {
-    return <File className="h-8 w-8 sm:h-10 sm:w-10 text-green-500" />;
+    return <Image className="h-8 w-8 sm:h-10 sm:w-10 text-green-500" />;
+  };
+
+  const handleVerify = async () => {
+    if (files.length === 0) {
+      setError("Please select at least one image file");
+      return;
+    }
+
+    setUploading(true);
+    setAnalyzing(true);
+    setError(null);
+
+    try {
+      const results = [];
+      
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        // Extract OCR data
+        const ocrResult = await extractOCR(file);
+        if (!ocrResult.success) {
+          throw new Error(`OCR extraction failed for ${file.name}: ${ocrResult.message}`);
+        }
+
+        // Verify with AI
+        const aiResult = await verifyAI(file);
+        if (!aiResult.success) {
+          throw new Error(`AI verification failed for ${file.name}: ${aiResult.message}`);
+        }
+
+        // Get database validation data
+        const [graduationData, identityData, internshipData] = await Promise.all([
+          getGraduationData(),
+          getIdentityData(),
+          getInternshipData()
+        ]);
+
+        results.push({
+          file: file,
+          fileName: file.name,
+          ocrData: ocrResult.data,
+          aiData: aiResult.data,
+          databaseValidation: {
+            graduation: graduationData.success ? graduationData.data : null,
+            identity: identityData.success ? identityData.data : null,
+            internship: internshipData.success ? internshipData.data : null,
+          },
+          verified: aiResult.data?.verified || false,
+          timestamp: new Date().toISOString(),
+        });
+      }
+
+      setResults(results);
+      navigate('/analyze');
+    } catch (error) {
+      console.error('Verification failed:', error);
+      setError(error.message || 'Verification failed. Please try again.');
+    } finally {
+      setUploading(false);
+      setAnalyzing(false);
+    }
   };
 
   const formatFileSize = (bytes) => {
@@ -173,7 +262,7 @@ const Hero = ({
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileSelect}
-                accept=".zip"
+                accept="image/*"
                 multiple
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
@@ -202,8 +291,8 @@ const Hero = ({
                       : "Upload Academic Certificates"}
                   </h3>
                   <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3 sm:mb-4 px-2">
-                    Secure blockchain verification with AI fraud detection. Only
-                    ZIP files containing certificates are accepted.
+                    Secure blockchain verification with AI fraud detection. Upload
+                    image files (JPEG, PNG, SVG, WebP) for instant verification.
                   </p>
                   <Button
                     type="button"
@@ -245,7 +334,7 @@ const Hero = ({
                         variant="ghost"
                         size="sm"
                         className="h-7 w-7 p-0 text-gray-400 hover:text-red-500 flex-shrink-0 ml-1"
-                        onClick={() => removeFile(index)}
+                        onClick={() => handleRemoveFile(index)}
                       >
                         <X className="h-3 w-3 sm:h-4 sm:w-4" />
                       </Button>
@@ -254,9 +343,26 @@ const Hero = ({
                 </div>
 
                 {files.length > 0 && (
-                  <Button className="w-full bg-green-600 hover:bg-green-700 text-white mt-3 sm:mt-4 py-2 text-sm sm:text-base">
-                    🔐 Verify with Blockchain & AI
+                  <Button 
+                    onClick={handleVerify}
+                    disabled={isUploading || isAnalyzing}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white mt-3 sm:mt-4 py-2 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isUploading || isAnalyzing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {isUploading ? 'Uploading...' : 'Analyzing...'}
+                      </>
+                    ) : (
+                      '🔐 Verify with Blockchain & AI'
+                    )}
                   </Button>
+                )}
+
+                {error && (
+                  <div className="mt-4 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg">
+                    <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                  </div>
                 )}
               </div>
             )}

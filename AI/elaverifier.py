@@ -102,7 +102,7 @@ def detect_tampering_with_boxes(image_path):
         print(f"Error analyzing image: {e}")
         return "ERROR", 0, None, [], None
 
-def check_identity_card(image_path):
+def check_identity_card(image_path, base_name=None):
     if not os.path.exists(image_path):
         print("Image file not found")
         return None
@@ -113,10 +113,14 @@ def check_identity_card(image_path):
         print("Could not analyze image")
         return None
     
-    base_name = os.path.splitext(os.path.basename(image_path))[0]
+    # Use provided base_name or extract from image path
+    if base_name is None:
+        base_name = os.path.splitext(os.path.basename(image_path))[0]
     
-    analysis_path = f"{base_name}_ela_analysis.jpg"
-    marked_path = f"{base_name}_with_boxes.jpg"
+    # Save images in the AI directory
+    ai_dir = os.path.dirname(os.path.abspath(__file__))
+    analysis_path = os.path.join(ai_dir, f"{base_name}_ela_analysis.jpg")
+    marked_path = os.path.join(ai_dir, f"{base_name}_with_boxes.jpg")
     
     if ela_image is not None:
         cv2.imwrite(analysis_path, ela_image)
